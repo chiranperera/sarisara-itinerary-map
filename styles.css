@@ -1,0 +1,198 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Map Section (Top) */
+.map-section {
+    flex: 1;
+    position: relative;
+    min-height: 60%;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Input Section (Bottom) */
+.input-section {
+    height: 40%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.input-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+h3 {
+    color: white;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#locationInput {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    background: white;
+    color: #667eea;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.secondary-btn {
+    background: #ff6b6b;
+    color: white;
+}
+
+.optimize-btn {
+    background: #4ecdc4;
+    color: white;
+}
+
+.itinerary-list {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    min-height: 150px;
+}
+
+#locationsList {
+    margin-bottom: 15px;
+    min-height: 80px;
+}
+
+.location-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.location-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.location-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.location-number {
+    background: #667eea;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.location-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 16px;
+}
+
+.remove-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+    background: #ff6b6b;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .input-section {
+        height: 50%;
+    }
+
+    .map-section {
+        min-height: 50%;
+    }
+
+    .form-group {
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+}

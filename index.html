@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lanka Tour Itinerary Planner</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Map Section (Top) -->
+        <div class="map-section">
+            <div id="map"></div>
+        </div>
+
+        <!-- Location Input Section (Bottom) -->
+        <div class="input-section">
+            <div class="input-container">
+                <h2>Add Destination</h2>
+                <div class="form-group">
+                    <input
+                        type="text"
+                        id="locationInput"
+                        placeholder="Enter location in Sri Lanka (e.g., Colombo, Kandy, Galle)"
+                        autocomplete="off"
+                    >
+                    <button id="addLocationBtn">Add Location</button>
+                </div>
+
+                <div class="itinerary-list">
+                    <h3>Your Itinerary</h3>
+                    <div id="locationsList"></div>
+                    <div class="action-buttons">
+                        <button id="clearAllBtn" class="secondary-btn">Clear All</button>
+                        <button id="optimizeRouteBtn" class="optimize-btn">Optimize Route</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Maps API - Replace YOUR_API_KEY with your actual API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    <script src="script.js"></script>
+</body>
+</html>
