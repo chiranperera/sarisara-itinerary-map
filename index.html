@@ -120,49 +120,68 @@
         .zoom-input-group label {
             color: #333;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
+            margin-bottom: 5px;
         }
 
-        #zoomValue {
-            color: #667eea;
-            font-weight: bold;
-        }
-
-        #zoomSlider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            outline: none;
-            cursor: pointer;
-        }
-
-        #zoomSlider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        #zoomSlider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            border: none;
-        }
-
-        .zoom-labels {
+        .zoom-input-wrapper {
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #zoomInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            outline: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        #zoomInput:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #zoomInput::-webkit-inner-spin-button,
+        #zoomInput::-webkit-outer-spin-button {
+            opacity: 1;
+            height: 40px;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .zoom-info {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .zoom-info small {
             color: #666;
+            font-size: 12px;
         }
 
         .secondary-btn {
@@ -289,18 +308,22 @@
                 <div class="zoom-control">
                     <h3>Map Zoom Level</h3>
                     <div class="zoom-input-group">
-                        <label for="zoomSlider">Zoom: <span id="zoomValue">7.5</span></label>
-                        <input
-                            type="range"
-                            id="zoomSlider"
-                            min="0"
-                            max="15"
-                            step="0.5"
-                            value="7.5"
-                        >
-                        <div class="zoom-labels">
-                            <span>0 (Very Far)</span>
-                            <span>15 (Close)</span>
+                        <label for="zoomInput">Enter Zoom Level (0-15):</label>
+                        <div class="zoom-input-wrapper">
+                            <button class="zoom-btn" id="zoomDecrement">-</button>
+                            <input
+                                type="number"
+                                id="zoomInput"
+                                min="0"
+                                max="15"
+                                step="0.1"
+                                value="7.5"
+                                placeholder="Enter zoom (e.g., 7.25)"
+                            >
+                            <button class="zoom-btn" id="zoomIncrement">+</button>
+                        </div>
+                        <div class="zoom-info">
+                            <small>Range: 0 (Very Far) to 15 (Very Close)</small>
                         </div>
                     </div>
                 </div>
@@ -404,21 +427,55 @@
                 }
             });
 
-            // Zoom control event listener
-            const zoomSlider = document.getElementById('zoomSlider');
-            const zoomValue = document.getElementById('zoomValue');
+            // Zoom control event listeners
+            const zoomInput = document.getElementById('zoomInput');
+            const zoomIncrement = document.getElementById('zoomIncrement');
+            const zoomDecrement = document.getElementById('zoomDecrement');
 
-            zoomSlider.addEventListener('input', function() {
-                const zoom = parseFloat(this.value);
-                zoomValue.textContent = zoom;
+            // Handle zoom input changes
+            zoomInput.addEventListener('change', function() {
+                let zoom = parseFloat(this.value);
+
+                // Validate zoom level
+                if (isNaN(zoom)) {
+                    zoom = 7.5;
+                } else if (zoom < 0) {
+                    zoom = 0;
+                } else if (zoom > 15) {
+                    zoom = 15;
+                }
+
+                this.value = zoom;
                 map.setZoom(zoom);
             });
 
-            // Update slider when map zoom changes (via map controls)
+            // Allow Enter key to apply zoom
+            zoomInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur(); // Trigger change event
+                }
+            });
+
+            // Increment button
+            zoomIncrement.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInput.value) || 7.5;
+                let newZoom = Math.min(15, currentZoom + 0.5);
+                zoomInput.value = newZoom;
+                map.setZoom(newZoom);
+            });
+
+            // Decrement button
+            zoomDecrement.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInput.value) || 7.5;
+                let newZoom = Math.max(0, currentZoom - 0.5);
+                zoomInput.value = newZoom;
+                map.setZoom(newZoom);
+            });
+
+            // Update input when map zoom changes (via map controls or scroll)
             map.addListener('zoom_changed', function() {
                 const currentZoom = map.getZoom();
-                zoomSlider.value = currentZoom;
-                zoomValue.textContent = currentZoom.toFixed(1);
+                zoomInput.value = currentZoom.toFixed(2);
             });
 
             console.log('All event listeners set up');
