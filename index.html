@@ -317,7 +317,7 @@
                                 min="0"
                                 max="15"
                                 step="0.1"
-                                value="7.5"
+                                value="8.5"
                                 placeholder="Enter zoom (e.g., 7.25)"
                             >
                             <button class="zoom-btn" id="zoomIncrement">+</button>
@@ -374,7 +374,7 @@
             // Create map centered on Sri Lanka with flexible zoom
             map = new google.maps.Map(document.getElementById('map'), {
                 center: SRI_LANKA_CENTER,
-                zoom: 7.5,
+                zoom: 8.5,
                 minZoom: 0,
                 maxZoom: 15,
                 restriction: {
@@ -438,7 +438,7 @@
 
                 // Validate zoom level
                 if (isNaN(zoom)) {
-                    zoom = 7.5;
+                    zoom = 8.5;
                 } else if (zoom < 0) {
                     zoom = 0;
                 } else if (zoom > 15) {
@@ -458,7 +458,7 @@
 
             // Increment button
             zoomIncrement.addEventListener('click', function() {
-                let currentZoom = parseFloat(zoomInput.value) || 7.5;
+                let currentZoom = parseFloat(zoomInput.value) || 8.5;
                 let newZoom = Math.min(15, currentZoom + 0.5);
                 zoomInput.value = newZoom;
                 map.setZoom(newZoom);
@@ -466,7 +466,7 @@
 
             // Decrement button
             zoomDecrement.addEventListener('click', function() {
-                let currentZoom = parseFloat(zoomInput.value) || 7.5;
+                let currentZoom = parseFloat(zoomInput.value) || 8.5;
                 let newZoom = Math.max(0, currentZoom - 0.5);
                 zoomInput.value = newZoom;
                 map.setZoom(newZoom);
@@ -539,7 +539,7 @@
             markers.push(marker);
             updateLocationsList();
             drawRoute();
-            map.panTo({ lat: location.lat, lng: location.lng });
+            // Do not auto-pan - keep map at user's chosen zoom/position
         }
 
         function updateLocationsList() {
@@ -593,8 +593,9 @@
                 directionsRenderer.setMap(null);
                 directionsRenderer.setMap(map);
                 updateLocationsList();
-                map.setCenter(SRI_LANKA_CENTER);
-                map.setZoom(7.5);
+                // Keep the current map position and zoom level
+                // map.setCenter(SRI_LANKA_CENTER);
+                // User maintains their chosen zoom level
             }
         }
 
