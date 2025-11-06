@@ -293,13 +293,13 @@
                         <input
                             type="range"
                             id="zoomSlider"
-                            min="7"
+                            min="0"
                             max="15"
                             step="0.5"
                             value="7.5"
                         >
                         <div class="zoom-labels">
-                            <span>7 (Far)</span>
+                            <span>0 (Very Far)</span>
                             <span>15 (Close)</span>
                         </div>
                     </div>
@@ -348,15 +348,15 @@
         function initMap() {
             console.log('Initializing map...');
 
-            // Create map centered on Sri Lanka with strict bounds
+            // Create map centered on Sri Lanka with flexible zoom
             map = new google.maps.Map(document.getElementById('map'), {
                 center: SRI_LANKA_CENTER,
                 zoom: 7.5,
-                minZoom: 7,
+                minZoom: 0,
                 maxZoom: 15,
                 restriction: {
                     latLngBounds: SRI_LANKA_BOUNDS,
-                    strictBounds: true
+                    strictBounds: false
                 },
                 mapTypeControl: true,
                 streetViewControl: false,
