@@ -299,16 +299,28 @@
         }
 
         .remove-btn {
-            padding: 6px 16px;
-            font-size: 12px;
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            padding: 0;
+            font-size: 20px;
+            line-height: 1;
             background: #ffffff;
             color: #000000;
             border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .remove-btn:hover {
-            background: #f5f5f5;
+            background: #000000;
+            color: #ffffff;
             border-color: #000000;
+            transform: scale(1.1);
         }
 
         .action-buttons {
@@ -538,6 +550,7 @@
                     <div class="action-buttons">
                         <button id="clearAllBtn" class="secondary-btn">Clear All</button>
                         <button id="optimizeRouteBtn" class="optimize-btn">Optimize Route</button>
+                        <button id="resetOrderBtn" class="secondary-btn">Reset Order</button>
                     </div>
                 </div>
             </div>
@@ -592,6 +605,7 @@
                     <div class="action-buttons">
                         <button id="clearAllBtnFS" class="secondary-btn">Clear All</button>
                         <button id="optimizeRouteBtnFS" class="optimize-btn">Optimize Route</button>
+                        <button id="resetOrderBtnFS" class="secondary-btn">Reset Order</button>
                     </div>
                 </div>
             </div>
@@ -603,6 +617,7 @@
         let map;
         let markers = [];
         let locations = [];
+        let originalLocations = [];  // Store original order for reset
         let directionsService;
         let directionsRenderer;
         let geocoder;
@@ -760,17 +775,17 @@
                 map: map,
                 suppressMarkers: true,  // Suppress default markers, we'll use our custom black pins
                 polylineOptions: {
-                    strokeColor: '#0066FF',
+                    strokeColor: '#FFB700',
                     strokeWeight: 3,
-                    strokeOpacity: 0.6,
+                    strokeOpacity: 0.8,
                     icons: [{
                         icon: {
                             path: google.maps.SymbolPath.CIRCLE,
-                            fillColor: '#0066FF',
+                            fillColor: '#FFB700',
                             fillOpacity: 1,
-                            strokeColor: '#FFFFFF',
-                            strokeWeight: 1,
-                            scale: 3
+                            strokeColor: '#000000',
+                            strokeWeight: 1.5,
+                            scale: 4
                         },
                         offset: '0',
                         repeat: '30px'
@@ -800,6 +815,7 @@
             document.getElementById('addLocationBtn').addEventListener('click', addLocation);
             document.getElementById('clearAllBtn').addEventListener('click', clearAll);
             document.getElementById('optimizeRouteBtn').addEventListener('click', optimizeRoute);
+            document.getElementById('resetOrderBtn').addEventListener('click', resetOrder);
 
             input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -893,6 +909,7 @@
             document.getElementById('addLocationBtnFS').addEventListener('click', addLocationFS);
             document.getElementById('clearAllBtnFS').addEventListener('click', clearAll);
             document.getElementById('optimizeRouteBtnFS').addEventListener('click', optimizeRoute);
+            document.getElementById('resetOrderBtnFS').addEventListener('click', resetOrder);
 
             inputFS.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1023,6 +1040,23 @@
                 fullscreenPanel.style.display = 'block';
                 fullscreenPanel.style.visibility = 'visible';
 
+                // Reinitialize autocomplete for fullscreen input
+                const inputFS = document.getElementById('locationInputFS');
+                if (autocompleteFS) {
+                    google.maps.event.clearInstanceListeners(inputFS);
+                }
+                autocompleteFS = new google.maps.places.Autocomplete(inputFS, {
+                    componentRestrictions: { country: 'lk' },
+                    fields: ['formatted_address', 'geometry', 'name']
+                });
+                autocompleteFS.addListener('place_changed', function() {
+                    const place = autocompleteFS.getPlace();
+                    if (place.geometry) {
+                        addLocationFromPlace(place);
+                        document.getElementById('locationInputFS').value = '';
+                    }
+                });
+
                 syncLocationsList();
 
                 console.log('Panel appended to fullscreen element and made visible');
@@ -1125,6 +1159,9 @@
         function addLocationToItinerary(location) {
             locations.push(location);
 
+            // Save original order (deep copy)
+            originalLocations = JSON.parse(JSON.stringify(locations));
+
             const marker = new google.maps.Marker({
                 position: { lat: location.lat, lng: location.lng },
                 map: map,
@@ -1158,7 +1195,7 @@
                         <div class="location-number">${index + 1}</div>
                         <div class="location-name">${location.name}</div>
                     </div>
-                    <button class="remove-btn" onclick="removeLocation(${index})">Remove</button>
+                    <button class="remove-btn" onclick="removeLocation(${index})" title="Remove location">×</button>
                 `;
                 listContainer.appendChild(item);
             });
@@ -1269,15 +1306,15 @@
 
                 if (directions && directions.routes && directions.routes.length > 0) {
                     const polylineOptions = {
-                        strokeColor: '#0066FF',
+                        strokeColor: '#FFB700',
                         strokeWeight: 3,
-                        strokeOpacity: 0.5,
+                        strokeOpacity: 0.8,
                         icons: [{
                             icon: {
                                 path: google.maps.SymbolPath.CIRCLE,
-                                fillColor: '#0066FF',
+                                fillColor: '#FFB700',
                                 fillOpacity: 1,
-                                strokeColor: '#FFFFFF',
+                                strokeColor: '#000000',
                                 strokeWeight: 1.5,
                                 scale: 4
                             },
@@ -1329,6 +1366,29 @@
                     drawRoute();
                 }
             });
+        }
+
+        function resetOrder() {
+            if (originalLocations.length === 0) {
+                alert('No original order to restore');
+                return;
+            }
+
+            if (locations.length === 0) {
+                alert('No locations to reset');
+                return;
+            }
+
+            // Restore original order
+            locations = JSON.parse(JSON.stringify(originalLocations));
+
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            // Update list and redraw route
+            updateLocationsList();
+            drawRoute();
         }
     </script>
 
