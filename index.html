@@ -402,26 +402,6 @@
             background: #333333;
         }
 
-        /* Custom Fullscreen Button */
-        .custom-fullscreen-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-            background: #ffffff;
-            border: 2px solid #000000;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .custom-fullscreen-btn:hover {
-            background: #000000;
-            color: #ffffff;
-        }
-
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -511,7 +491,6 @@
 
         <!-- Map Section (Right 60%) -->
         <div class="map-section">
-            <button class="custom-fullscreen-btn" id="customFullscreenBtn">⛶ Fullscreen</button>
             <div id="map"></div>
         </div>
     </div>
@@ -626,7 +605,7 @@
                 },
                 mapTypeControl: true,
                 streetViewControl: false,
-                fullscreenControl: false,
+                fullscreenControl: true,
                 zoomControl: true,
                 gestureHandling: 'auto',
                 styles: [
@@ -841,10 +820,6 @@
             zoomLockBtn.addEventListener('click', toggleZoomLock);
             zoomLockBtnFS.addEventListener('click', toggleZoomLock);
 
-            // Fullscreen functionality
-            const customFullscreenBtn = document.getElementById('customFullscreenBtn');
-            customFullscreenBtn.addEventListener('click', toggleFullscreen);
-
             // Set up autocomplete for fullscreen panel
             const inputFS = document.getElementById('locationInputFS');
             autocompleteFS = new google.maps.places.Autocomplete(inputFS, {
@@ -967,33 +942,17 @@
             }
         }
 
-        // Toggle fullscreen mode
-        function toggleFullscreen() {
-            const mapSection = document.querySelector('.map-section');
-            const fullscreenPanel = document.getElementById('fullscreenPanel');
-
-            if (!document.fullscreenElement) {
-                mapSection.requestFullscreen().then(() => {
-                    isFullscreen = true;
-                    fullscreenPanel.classList.add('active');
-                    syncLocationsList();
-                }).catch(err => {
-                    console.error('Error attempting to enable fullscreen:', err);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().then(() => {
-                        isFullscreen = false;
-                        fullscreenPanel.classList.remove('active');
-                    });
-                }
-            }
-        }
-
-        // Listen for fullscreen changes
+        // Listen for fullscreen changes (when Google Maps fullscreen is activated)
         document.addEventListener('fullscreenchange', function() {
             const fullscreenPanel = document.getElementById('fullscreenPanel');
-            if (!document.fullscreenElement) {
+
+            if (document.fullscreenElement) {
+                // Entering fullscreen - show the panel
+                isFullscreen = true;
+                fullscreenPanel.classList.add('active');
+                syncLocationsList();
+            } else {
+                // Exiting fullscreen - hide the panel
                 isFullscreen = false;
                 fullscreenPanel.classList.remove('active');
             }
@@ -1179,6 +1138,13 @@
                 if (status === 'OK') {
                     markers.forEach(marker => marker.setMap(null));
                     markers = [];
+
+                    // If zoom is locked, preserve the current viewport
+                    if (isZoomLocked) {
+                        directionsRenderer.setOptions({ preserveViewport: true });
+                    } else {
+                        directionsRenderer.setOptions({ preserveViewport: false });
+                    }
 
                     directionsRenderer.setDirections(result);
 
