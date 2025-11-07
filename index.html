@@ -676,11 +676,6 @@
                 position: { lat: location.lat, lng: location.lng },
                 map: map,
                 title: location.name,
-                label: {
-                    text: String(locations.length),
-                    color: '#FFFFFF',
-                    fontWeight: 'bold'
-                },
                 icon: 'http://maps.google.com/mapfiles/ms/icons/black.png',
                 animation: google.maps.Animation.DROP
             });
@@ -719,14 +714,6 @@
             locations.splice(index, 1);
             markers[index].setMap(null);
             markers.splice(index, 1);
-
-            markers.forEach((marker, i) => {
-                marker.setLabel({
-                    text: String(i + 1),
-                    color: 'white',
-                    fontWeight: 'bold'
-                });
-            });
 
             updateLocationsList();
             drawRoute();
@@ -781,11 +768,6 @@
                             position: { lat: location.lat, lng: location.lng },
                             map: map,
                             title: location.name,
-                            label: {
-                                text: String(index + 1),
-                                color: '#FFFFFF',
-                                fontWeight: 'bold'
-                            },
                             icon: 'http://maps.google.com/mapfiles/ms/icons/black.png'
                         });
                         markers.push(marker);
