@@ -679,19 +679,9 @@
                 label: {
                     text: String(locations.length),
                     color: '#FFFFFF',
-                    fontWeight: 'bold',
-                    fontSize: '12px'
+                    fontWeight: 'bold'
                 },
-                icon: {
-                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
-                            <path d="M16 0C9.373 0 4 5.373 4 12c0 8.5 12 28 12 28s12-19.5 12-28c0-6.627-5.373-12-12-12z"
-                                  fill="#000000" stroke="#FFFFFF" stroke-width="2"/>
-                        </svg>
-                    `),
-                    scaledSize: new google.maps.Size(32, 40),
-                    labelOrigin: new google.maps.Point(16, 13)
-                },
+                icon: 'http://maps.google.com/mapfiles/ms/icons/black.png',
                 animation: google.maps.Animation.DROP
             });
 
@@ -794,19 +784,9 @@
                             label: {
                                 text: String(index + 1),
                                 color: '#FFFFFF',
-                                fontWeight: 'bold',
-                                fontSize: '12px'
+                                fontWeight: 'bold'
                             },
-                            icon: {
-                                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
-                                        <path d="M16 0C9.373 0 4 5.373 4 12c0 8.5 12 28 12 28s12-19.5 12-28c0-6.627-5.373-12-12-12z"
-                                              fill="#000000" stroke="#FFFFFF" stroke-width="2"/>
-                                    </svg>
-                                `),
-                                scaledSize: new google.maps.Size(32, 40),
-                                labelOrigin: new google.maps.Point(16, 13)
-                            }
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/black.png'
                         });
                         markers.push(marker);
                     });
@@ -823,24 +803,24 @@
             }
 
             animationInterval = setInterval(function() {
-                offset = (offset + 2) % 30;
+                offset = (offset + 3) % 30;
 
-                const icons = directionsRenderer.get('routeIndex') !== undefined ?
-                    directionsRenderer.getDirections()?.routes[0]?.legs : null;
+                // Check if there's a route to animate
+                const directions = directionsRenderer.getDirections();
 
-                if (icons) {
+                if (directions && directions.routes && directions.routes.length > 0) {
                     const polylineOptions = {
                         strokeColor: '#0066FF',
                         strokeWeight: 3,
-                        strokeOpacity: 0.6,
+                        strokeOpacity: 0.5,
                         icons: [{
                             icon: {
                                 path: google.maps.SymbolPath.CIRCLE,
                                 fillColor: '#0066FF',
                                 fillOpacity: 1,
                                 strokeColor: '#FFFFFF',
-                                strokeWeight: 1,
-                                scale: 3
+                                strokeWeight: 1.5,
+                                scale: 4
                             },
                             offset: offset + 'px',
                             repeat: '30px'
@@ -849,7 +829,7 @@
 
                     directionsRenderer.setOptions({ polylineOptions: polylineOptions });
                 }
-            }, 50); // Update every 50ms for smooth animation
+            }, 60); // Update every 60ms for smooth flowing animation
         }
 
         function optimizeRoute() {
