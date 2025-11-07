@@ -307,6 +307,121 @@
             font-size: 14px;
         }
 
+        /* Fullscreen Panel Styles */
+        .fullscreen-panel {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 90vh;
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 20px;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .fullscreen-panel.active {
+            display: block;
+        }
+
+        .fullscreen-panel h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .fullscreen-panel h3 {
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .fullscreen-panel .form-group {
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .fullscreen-panel button {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .fullscreen-panel .itinerary-list {
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .fullscreen-panel .location-item {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .fullscreen-panel .location-number {
+            width: 24px;
+            height: 24px;
+            font-size: 11px;
+        }
+
+        .fullscreen-panel .location-name {
+            font-size: 13px;
+        }
+
+        .fullscreen-panel .zoom-control {
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        /* Zoom Lock Button */
+        .zoom-lock-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
+            padding: 8px 16px;
+            font-size: 13px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .zoom-lock-btn.locked {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .zoom-lock-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .zoom-lock-btn.locked:hover {
+            background: #333333;
+        }
+
+        /* Custom Fullscreen Button */
+        .custom-fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            background: #ffffff;
+            border: 2px solid #000000;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .custom-fullscreen-btn:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -328,6 +443,11 @@
 
             .action-buttons {
                 flex-direction: column;
+            }
+
+            .fullscreen-panel {
+                width: 90%;
+                right: 5%;
             }
         }
     </style>
@@ -361,11 +481,15 @@
                                 min="0"
                                 max="15"
                                 step="0.1"
-                                value="8.5"
+                                value="8.6"
                                 placeholder="Enter zoom (e.g., 7.25)"
                             >
                             <button class="zoom-btn" id="zoomIncrement">+</button>
                         </div>
+                        <button class="zoom-lock-btn" id="zoomLockBtn">
+                            <span id="lockIcon">🔓</span>
+                            <span id="lockText">Lock Zoom & Pan</span>
+                        </button>
                         <div class="zoom-info">
                             <small>Range: 0 (Very Far) to 15 (Very Close)</small>
                         </div>
@@ -387,7 +511,57 @@
 
         <!-- Map Section (Right 60%) -->
         <div class="map-section">
+            <button class="custom-fullscreen-btn" id="customFullscreenBtn">⛶ Fullscreen</button>
             <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
+    <div class="fullscreen-panel" id="fullscreenPanel">
+        <h2>Add Destination</h2>
+        <div class="form-group">
+            <input
+                type="text"
+                id="locationInputFS"
+                placeholder="Enter location in Sri Lanka"
+                autocomplete="off"
+            >
+            <button id="addLocationBtnFS">Add Location</button>
+        </div>
+
+        <div class="zoom-control">
+            <h3>Map Zoom Level</h3>
+            <div class="zoom-input-group">
+                <label for="zoomInputFS">Enter Zoom Level (0-15):</label>
+                <div class="zoom-input-wrapper">
+                    <button class="zoom-btn" id="zoomDecrementFS">-</button>
+                    <input
+                        type="number"
+                        id="zoomInputFS"
+                        min="0"
+                        max="15"
+                        step="0.1"
+                        value="8.6"
+                        placeholder="Enter zoom"
+                    >
+                    <button class="zoom-btn" id="zoomIncrementFS">+</button>
+                </div>
+                <button class="zoom-lock-btn" id="zoomLockBtnFS">
+                    <span id="lockIconFS">🔓</span>
+                    <span id="lockTextFS">Lock Zoom & Pan</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="itinerary-list">
+            <h3>Your Itinerary</h3>
+            <div id="locationsListFS">
+                <div class="empty-message">No destinations added yet</div>
+            </div>
+            <div class="action-buttons">
+                <button id="clearAllBtnFS" class="secondary-btn">Clear All</button>
+                <button id="optimizeRouteBtnFS" class="optimize-btn">Optimize Route</button>
+            </div>
         </div>
     </div>
 
@@ -400,6 +574,10 @@
         let directionsRenderer;
         let geocoder;
         let animationInterval;
+        let isZoomLocked = false;
+        let isFullscreen = false;
+        let autocomplete;
+        let autocompleteFS;
 
         // Sri Lanka center coordinates
         const SRI_LANKA_CENTER = { lat: 7.8731, lng: 80.7718 };
@@ -439,7 +617,7 @@
             // Create map centered on Sri Lanka with flexible zoom and gray/black styling
             map = new google.maps.Map(document.getElementById('map'), {
                 center: SRI_LANKA_CENTER,
-                zoom: 8.5,
+                zoom: 8.6,
                 minZoom: 0,
                 maxZoom: 15,
                 restriction: {
@@ -448,8 +626,9 @@
                 },
                 mapTypeControl: true,
                 streetViewControl: false,
-                fullscreenControl: true,
+                fullscreenControl: false,
                 zoomControl: true,
+                gestureHandling: 'auto',
                 styles: [
                     {
                         "elementType": "geometry",
@@ -606,7 +785,7 @@
 
                 // Validate zoom level
                 if (isNaN(zoom)) {
-                    zoom = 8.5;
+                    zoom = 8.6;
                 } else if (zoom < 0) {
                     zoom = 0;
                 } else if (zoom > 15) {
@@ -614,7 +793,9 @@
                 }
 
                 this.value = zoom;
-                map.setZoom(zoom);
+                if (!isZoomLocked) {
+                    map.setZoom(zoom);
+                }
             });
 
             // Allow Enter key to apply zoom
@@ -626,27 +807,231 @@
 
             // Increment button
             zoomIncrement.addEventListener('click', function() {
-                let currentZoom = parseFloat(zoomInput.value) || 8.5;
+                let currentZoom = parseFloat(zoomInput.value) || 8.6;
                 let newZoom = Math.min(15, currentZoom + 0.5);
                 zoomInput.value = newZoom;
-                map.setZoom(newZoom);
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
             });
 
             // Decrement button
             zoomDecrement.addEventListener('click', function() {
-                let currentZoom = parseFloat(zoomInput.value) || 8.5;
+                let currentZoom = parseFloat(zoomInput.value) || 8.6;
                 let newZoom = Math.max(0, currentZoom - 0.5);
                 zoomInput.value = newZoom;
-                map.setZoom(newZoom);
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
             });
 
             // Update input when map zoom changes (via map controls or scroll)
             map.addListener('zoom_changed', function() {
-                const currentZoom = map.getZoom();
-                zoomInput.value = currentZoom.toFixed(2);
+                if (!isZoomLocked) {
+                    const currentZoom = map.getZoom();
+                    zoomInput.value = currentZoom.toFixed(2);
+                    document.getElementById('zoomInputFS').value = currentZoom.toFixed(2);
+                }
+            });
+
+            // Zoom Lock functionality
+            const zoomLockBtn = document.getElementById('zoomLockBtn');
+            const zoomLockBtnFS = document.getElementById('zoomLockBtnFS');
+
+            zoomLockBtn.addEventListener('click', toggleZoomLock);
+            zoomLockBtnFS.addEventListener('click', toggleZoomLock);
+
+            // Fullscreen functionality
+            const customFullscreenBtn = document.getElementById('customFullscreenBtn');
+            customFullscreenBtn.addEventListener('click', toggleFullscreen);
+
+            // Set up autocomplete for fullscreen panel
+            const inputFS = document.getElementById('locationInputFS');
+            autocompleteFS = new google.maps.places.Autocomplete(inputFS, {
+                componentRestrictions: { country: 'lk' },
+                fields: ['formatted_address', 'geometry', 'name']
+            });
+
+            autocompleteFS.addListener('place_changed', function() {
+                const place = autocompleteFS.getPlace();
+                if (place.geometry) {
+                    addLocationFromPlace(place);
+                    document.getElementById('locationInputFS').value = '';
+                }
+            });
+
+            // Fullscreen panel event listeners
+            document.getElementById('addLocationBtnFS').addEventListener('click', addLocationFS);
+            document.getElementById('clearAllBtnFS').addEventListener('click', clearAll);
+            document.getElementById('optimizeRouteBtnFS').addEventListener('click', optimizeRoute);
+
+            inputFS.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addLocationFS();
+                }
+            });
+
+            // Fullscreen zoom controls
+            const zoomInputFS = document.getElementById('zoomInputFS');
+            const zoomIncrementFS = document.getElementById('zoomIncrementFS');
+            const zoomDecrementFS = document.getElementById('zoomDecrementFS');
+
+            zoomInputFS.addEventListener('change', function() {
+                let zoom = parseFloat(this.value);
+                if (isNaN(zoom)) {
+                    zoom = 8.6;
+                } else if (zoom < 0) {
+                    zoom = 0;
+                } else if (zoom > 15) {
+                    zoom = 15;
+                }
+                this.value = zoom;
+                zoomInput.value = zoom;
+                if (!isZoomLocked) {
+                    map.setZoom(zoom);
+                }
+            });
+
+            zoomInputFS.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            });
+
+            zoomIncrementFS.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInputFS.value) || 8.6;
+                let newZoom = Math.min(15, currentZoom + 0.5);
+                zoomInputFS.value = newZoom;
+                zoomInput.value = newZoom;
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
+            });
+
+            zoomDecrementFS.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInputFS.value) || 8.6;
+                let newZoom = Math.max(0, currentZoom - 0.5);
+                zoomInputFS.value = newZoom;
+                zoomInput.value = newZoom;
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
             });
 
             console.log('All event listeners set up');
+        }
+
+        // Toggle zoom lock
+        function toggleZoomLock() {
+            isZoomLocked = !isZoomLocked;
+
+            const lockIcon = document.getElementById('lockIcon');
+            const lockText = document.getElementById('lockText');
+            const lockIconFS = document.getElementById('lockIconFS');
+            const lockTextFS = document.getElementById('lockTextFS');
+            const zoomLockBtn = document.getElementById('zoomLockBtn');
+            const zoomLockBtnFS = document.getElementById('zoomLockBtnFS');
+
+            if (isZoomLocked) {
+                lockIcon.textContent = '🔒';
+                lockText.textContent = 'Unlock Zoom & Pan';
+                lockIconFS.textContent = '🔒';
+                lockTextFS.textContent = 'Unlock Zoom & Pan';
+                zoomLockBtn.classList.add('locked');
+                zoomLockBtnFS.classList.add('locked');
+
+                // Disable zoom and pan
+                map.setOptions({
+                    zoomControl: false,
+                    scrollwheel: false,
+                    disableDoubleClickZoom: true,
+                    draggable: false,
+                    gestureHandling: 'none'
+                });
+            } else {
+                lockIcon.textContent = '🔓';
+                lockText.textContent = 'Lock Zoom & Pan';
+                lockIconFS.textContent = '🔓';
+                lockTextFS.textContent = 'Lock Zoom & Pan';
+                zoomLockBtn.classList.remove('locked');
+                zoomLockBtnFS.classList.remove('locked');
+
+                // Enable zoom and pan
+                map.setOptions({
+                    zoomControl: true,
+                    scrollwheel: true,
+                    disableDoubleClickZoom: false,
+                    draggable: true,
+                    gestureHandling: 'auto'
+                });
+            }
+        }
+
+        // Toggle fullscreen mode
+        function toggleFullscreen() {
+            const mapSection = document.querySelector('.map-section');
+            const fullscreenPanel = document.getElementById('fullscreenPanel');
+
+            if (!document.fullscreenElement) {
+                mapSection.requestFullscreen().then(() => {
+                    isFullscreen = true;
+                    fullscreenPanel.classList.add('active');
+                    syncLocationsList();
+                }).catch(err => {
+                    console.error('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        isFullscreen = false;
+                        fullscreenPanel.classList.remove('active');
+                    });
+                }
+            }
+        }
+
+        // Listen for fullscreen changes
+        document.addEventListener('fullscreenchange', function() {
+            const fullscreenPanel = document.getElementById('fullscreenPanel');
+            if (!document.fullscreenElement) {
+                isFullscreen = false;
+                fullscreenPanel.classList.remove('active');
+            }
+        });
+
+        // Sync locations list between main and fullscreen panel
+        function syncLocationsList() {
+            const mainList = document.getElementById('locationsList').innerHTML;
+            document.getElementById('locationsListFS').innerHTML = mainList;
+        }
+
+        // Add location from fullscreen panel
+        function addLocationFS() {
+            const input = document.getElementById('locationInputFS');
+            const locationName = input.value.trim();
+
+            if (!locationName) {
+                alert('Please enter a location');
+                return;
+            }
+
+            geocoder.geocode({
+                address: locationName + ', Sri Lanka',
+                componentRestrictions: { country: 'lk' }
+            }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const location = {
+                        name: locationName,
+                        address: results[0].formatted_address,
+                        lat: results[0].geometry.location.lat(),
+                        lng: results[0].geometry.location.lng()
+                    };
+                    addLocationToItinerary(location);
+                    input.value = '';
+                } else {
+                    alert('Location not found in Sri Lanka. Please try again.');
+                }
+            });
         }
 
         function addLocationFromPlace(place) {
@@ -711,6 +1096,7 @@
 
             if (locations.length === 0) {
                 listContainer.innerHTML = '<div class="empty-message">No destinations added yet. Start planning your journey!</div>';
+                syncLocationsList();
                 return;
             }
 
@@ -728,6 +1114,9 @@
                 `;
                 listContainer.appendChild(item);
             });
+
+            // Sync with fullscreen panel
+            syncLocationsList();
         }
 
         function removeLocation(index) {
