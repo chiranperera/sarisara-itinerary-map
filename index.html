@@ -387,7 +387,6 @@
         }
 
         .fullscreen-panel button {
-            width: 100%;
             margin-top: 5px;
         }
 
@@ -396,6 +395,44 @@
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
+        }
+
+        /* Distance Display Styles */
+        .distance-info {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .distance-label {
+            font-size: 12px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .distance-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            margin: 0;
+        }
+
+        .distance-value .unit {
+            font-size: 16px;
+            font-weight: 500;
+            color: #666666;
+        }
+
+        .leg-distance {
+            font-size: 11px;
+            color: #666666;
+            margin-top: 3px;
+            font-style: italic;
         }
 
         .fullscreen-panel .itinerary-list {
@@ -542,6 +579,14 @@
                     </div>
                 </div>
 
+                <!-- Distance Display -->
+                <div class="distance-info" id="distanceInfo" style="display: none;">
+                    <div class="distance-label">Total Journey Distance</div>
+                    <div class="distance-value">
+                        <span id="totalDistance">0</span> <span class="unit">km</span>
+                    </div>
+                </div>
+
                 <div class="itinerary-list">
                     <h3>Your Itinerary</h3>
                     <div id="locationsList">
@@ -597,6 +642,14 @@
                     </div>
                 </div>
 
+                <!-- Distance Display for Fullscreen -->
+                <div class="distance-info" id="distanceInfoFS" style="display: none;">
+                    <div class="distance-label">Total Journey Distance</div>
+                    <div class="distance-value">
+                        <span id="totalDistanceFS">0</span> <span class="unit">km</span>
+                    </div>
+                </div>
+
                 <div class="itinerary-list">
                     <h3>Your Itinerary</h3>
                     <div id="locationsListFS">
@@ -626,6 +679,8 @@
         let isFullscreen = false;
         let autocomplete;
         let autocompleteFS;
+        let totalDistanceKm = 0;
+        let legDistances = [];  // Store distances between consecutive locations
 
         // Sri Lanka center coordinates
         const SRI_LANKA_CENTER = { lat: 7.8731, lng: 80.7718 };
@@ -1190,13 +1245,22 @@
             locations.forEach((location, index) => {
                 const item = document.createElement('div');
                 item.className = 'location-item';
-                item.innerHTML = `
+
+                // Build location info HTML
+                let locationInfoHTML = `
                     <div class="location-info">
                         <div class="location-number">${index + 1}</div>
-                        <div class="location-name">${location.name}</div>
+                        <div class="location-name">
+                            ${location.name}
+                            ${index < legDistances.length && legDistances[index] > 0 ?
+                                `<div class="leg-distance">↓ ${legDistances[index]} km to next location</div>` :
+                                ''}
+                        </div>
                     </div>
                     <button class="remove-btn" onclick="removeLocation(${index})" title="Remove location">×</button>
                 `;
+
+                item.innerHTML = locationInfoHTML;
                 listContainer.appendChild(item);
             });
 
@@ -1235,7 +1299,10 @@
                 markers = [];
                 directionsRenderer.setMap(null);
                 directionsRenderer.setMap(map);
+                totalDistanceKm = 0;
+                legDistances = [];
                 updateLocationsList();
+                updateDistanceDisplay();
                 // Keep the current map position and zoom level
                 // map.setCenter(SRI_LANKA_CENTER);
                 // User maintains their chosen zoom level
@@ -1245,6 +1312,9 @@
         function drawRoute() {
             if (locations.length < 2) {
                 directionsRenderer.setDirections({ routes: [] });
+                totalDistanceKm = 0;
+                legDistances = [];
+                updateDistanceDisplay();
                 return;
             }
 
@@ -1274,6 +1344,9 @@
 
                     directionsRenderer.setDirections(result);
 
+                    // Calculate distances
+                    calculateDistances(result);
+
                     // Restart animation for the new route
                     startRouteAnimation();
 
@@ -1288,6 +1361,51 @@
                     });
                 }
             });
+        }
+
+        // Calculate distances from DirectionsResult
+        function calculateDistances(result) {
+            if (!result || !result.routes || result.routes.length === 0) {
+                totalDistanceKm = 0;
+                legDistances = [];
+                updateDistanceDisplay();
+                return;
+            }
+
+            const route = result.routes[0];
+            let totalMeters = 0;
+            legDistances = [];
+
+            // Sum up all legs
+            route.legs.forEach(leg => {
+                const distanceMeters = leg.distance.value;
+                const distanceKm = (distanceMeters / 1000).toFixed(1);
+                legDistances.push(parseFloat(distanceKm));
+                totalMeters += distanceMeters;
+            });
+
+            totalDistanceKm = (totalMeters / 1000).toFixed(1);
+            updateDistanceDisplay();
+        }
+
+        // Update distance display in UI
+        function updateDistanceDisplay() {
+            const distanceInfo = document.getElementById('distanceInfo');
+            const distanceInfoFS = document.getElementById('distanceInfoFS');
+            const totalDistanceEl = document.getElementById('totalDistance');
+            const totalDistanceFSEl = document.getElementById('totalDistanceFS');
+
+            if (locations.length < 2 || totalDistanceKm === 0) {
+                // Hide distance display if no route
+                distanceInfo.style.display = 'none';
+                distanceInfoFS.style.display = 'none';
+            } else {
+                // Show and update distance display
+                distanceInfo.style.display = 'block';
+                distanceInfoFS.style.display = 'block';
+                totalDistanceEl.textContent = totalDistanceKm;
+                totalDistanceFSEl.textContent = totalDistanceKm;
+            }
         }
 
         // Animate route lines with flowing energy effect
