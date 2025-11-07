@@ -526,7 +526,7 @@
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer({
                 map: map,
-                suppressMarkers: false,
+                suppressMarkers: true,  // Suppress default markers, we'll use our custom black pins
                 polylineOptions: {
                     strokeColor: '#0066FF',
                     strokeWeight: 3,
