@@ -1000,6 +1000,7 @@
         function handleFullscreenChange() {
             const fullscreenPanel = document.getElementById('fullscreenPanel');
             const mapSection = document.getElementById('mapSection');
+            const mapDiv = document.getElementById('map');
 
             // Check multiple fullscreen element properties for browser compatibility
             const fullscreenElement = document.fullscreenElement ||
@@ -1007,26 +1008,33 @@
                                      document.mozFullScreenElement ||
                                      document.msFullscreenElement;
 
-            // Check if the map section (or its child - the map) is in fullscreen
-            const isMapFullscreen = fullscreenElement === mapSection ||
-                                   (fullscreenElement && fullscreenElement.id === 'map');
+            console.log('Fullscreen element:', fullscreenElement);
 
-            if (isMapFullscreen) {
-                // Entering fullscreen - show the panel
+            if (fullscreenElement) {
+                // Entering fullscreen - append panel to the fullscreen element
                 console.log('Entering fullscreen mode - showing panel');
                 isFullscreen = true;
+
+                // Move the panel into the fullscreen element
+                fullscreenElement.appendChild(fullscreenPanel);
+
+                // Show the panel
                 fullscreenPanel.classList.add('active');
+                fullscreenPanel.style.display = 'block';
+                fullscreenPanel.style.visibility = 'visible';
+
                 syncLocationsList();
 
-                // Small delay to ensure DOM is ready
-                setTimeout(() => {
-                    fullscreenPanel.style.display = 'block';
-                    console.log('Panel display set to block');
-                }, 100);
+                console.log('Panel appended to fullscreen element and made visible');
             } else {
-                // Exiting fullscreen - hide the panel
+                // Exiting fullscreen - move panel back and hide it
                 console.log('Exiting fullscreen mode - hiding panel');
                 isFullscreen = false;
+
+                // Move panel back to map-section
+                mapSection.appendChild(fullscreenPanel);
+
+                // Hide the panel
                 fullscreenPanel.classList.remove('active');
                 fullscreenPanel.style.display = 'none';
             }
