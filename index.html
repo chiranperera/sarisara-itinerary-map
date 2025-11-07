@@ -319,13 +319,15 @@
             border: 2px solid #000000;
             border-radius: 8px;
             padding: 20px;
-            z-index: 1000;
+            z-index: 2147483647 !important;
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .fullscreen-panel.active {
-            display: block;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .fullscreen-panel h2 {
@@ -342,11 +344,19 @@
         .fullscreen-panel .form-group {
             flex-direction: column;
             margin-bottom: 15px;
+            gap: 10px;
         }
 
         .fullscreen-panel button {
             width: 100%;
             margin-top: 5px;
+        }
+
+        .fullscreen-panel .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .fullscreen-panel .itinerary-list {
@@ -373,6 +383,23 @@
         .fullscreen-panel .zoom-control {
             margin-bottom: 15px;
             padding: 15px;
+        }
+
+        .fullscreen-panel input[type="text"],
+        .fullscreen-panel input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .fullscreen-panel input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
         }
 
         /* Zoom Lock Button */
@@ -942,21 +969,36 @@
             }
         }
 
-        // Listen for fullscreen changes (when Google Maps fullscreen is activated)
-        document.addEventListener('fullscreenchange', function() {
+        // Function to handle fullscreen changes
+        function handleFullscreenChange() {
             const fullscreenPanel = document.getElementById('fullscreenPanel');
 
-            if (document.fullscreenElement) {
+            // Check multiple fullscreen element properties for browser compatibility
+            const fullscreenElement = document.fullscreenElement ||
+                                     document.webkitFullscreenElement ||
+                                     document.mozFullScreenElement ||
+                                     document.msFullscreenElement;
+
+            if (fullscreenElement) {
                 // Entering fullscreen - show the panel
+                console.log('Entering fullscreen mode - showing panel');
                 isFullscreen = true;
                 fullscreenPanel.classList.add('active');
                 syncLocationsList();
             } else {
                 // Exiting fullscreen - hide the panel
+                console.log('Exiting fullscreen mode - hiding panel');
                 isFullscreen = false;
                 fullscreenPanel.classList.remove('active');
             }
-        });
+        }
+
+        // Listen for fullscreen changes (when Google Maps fullscreen is activated)
+        // Add listeners for all browser prefixes
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
 
         // Sync locations list between main and fullscreen panel
         function syncLocationsList() {
