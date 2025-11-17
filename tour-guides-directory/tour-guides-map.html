@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lanka Tour Guides Directory Map</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        .container { display: flex; flex-direction: row; height: 100vh; width: 100%; }
+        .filter-panel { width: 35%; height: 100vh; background: #ffffff; padding: 20px; overflow-y: auto; border-right: 2px solid #e0e0e0; }
+        .map-section { width: 65%; height: 100vh; background-color: #f5f5f5; position: relative; }
+        #map { width: 100%; height: 100%; }
+        .header { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #000000; }
+        .header h1 { color: #000000; font-size: 22px; font-weight: 700; margin-bottom: 5px; }
+        .header p { color: #666666; font-size: 13px; }
+        .stats { display: flex; gap: 15px; margin-top: 10px; }
+        .stat-box { background: #f8f8f8; padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .stat-box .label { font-size: 11px; color: #666666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-box .value { font-size: 18px; font-weight: 700; color: #000000; }
+        .search-box { margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 12px 16px; border: 2px solid #d0d0d0; border-radius: 6px; font-size: 14px; outline: none; transition: all 0.2s ease; }
+        .search-box input:focus { border-color: #000000; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05); }
+        .filter-section { margin-bottom: 20px; }
+        .filter-section h3 { font-size: 14px; font-weight: 600; color: #000000; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .filter-chip { padding: 8px 14px; background: #f8f8f8; border: 1px solid #d0d0d0; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+        .filter-chip:hover { background: #e8e8e8; border-color: #000000; }
+        .filter-chip.active { background: #000000; color: #ffffff; border-color: #000000; }
+        .guides-list { margin-top: 20px; }
+        .guide-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s ease; }
+        .guide-card:hover { border-color: #000000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+        .guide-card-header { display: flex; gap: 12px; margin-bottom: 10px; }
+        .guide-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e0e0e0; }
+        .guide-info { flex: 1; }
+        .guide-name { font-size: 15px; font-weight: 700; color: #000000; margin-bottom: 3px; }
+        .guide-reg { font-size: 11px; color: #666666; font-weight: 500; }
+        .guide-category { display: inline-block; padding: 3px 8px; background: #000000; color: #ffffff; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+        .guide-details { margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .detail-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 12px; color: #333333; }
+        .detail-icon { width: 16px; text-align: center; }
+        .languages { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .language-tag { padding: 4px 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; color: #333333; }
+        .validity { margin-top: 8px; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .validity.valid { background: #e8f5e9; color: #2e7d32; }
+        .validity.expiring-soon { background: #fff3e0; color: #e65100; }
+        .validity.expired { background: #ffebee; color: #c62828; }
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        button { padding: 10px 20px; border: 2px solid #000000; border-radius: 6px; background: #000000; color: #ffffff; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+        button:hover { background: #333333; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+        button.secondary { background: #ffffff; color: #000000; }
+        button.secondary:hover { background: #f5f5f5; }
+        .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; color: #666666; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #000000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .empty-state { text-align: center; padding: 40px 20px; color: #999999; }
+        .empty-state-icon { font-size: 48px; margin-bottom: 10px; }
+        .fullscreen-panel { display: none; position: absolute; top: 20px; right: 20px; width: 380px; max-height: calc(100vh - 40px); background: #ffffff; border: 2px solid #000000; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); z-index: 1000; overflow-y: auto; padding: 20px; }
+        .fullscreen-panel.active { display: block; }
+        .map-section:fullscreen .fullscreen-panel.active, .map-section:-webkit-full-screen .fullscreen-panel.active { display: block; z-index: 10000; }
+        .close-panel { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; border-radius: 50%; background: #f5f5f5; border: 1px solid #d0d0d0; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.2s ease; }
+        .close-panel:hover { background: #000000; color: #ffffff; border-color: #000000; }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .filter-panel { width: 100%; height: 40vh; }
+            .map-section { width: 100%; height: 60vh; }
+            .fullscreen-panel { width: 90%; right: 5%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="filter-panel" id="filterPanel">
+            <div class="header">
+                <h1>🇱🇰 Tour Guides Directory</h1>
+                <p>SLTDA Registered Tour Guides</p>
+                <div class="stats">
+                    <div class="stat-box"><div class="label">Total Guides</div><div class="value" id="totalCount">0</div></div>
+                    <div class="stat-box"><div class="label">Showing</div><div class="value" id="filteredCount">0</div></div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="refreshBtn">🔄 Refresh</button>
+                <button class="secondary" id="resetFiltersBtn">Clear Filters</button>
+            </div>
+            <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 Search by name or reg number..."></div>
+            <div class="filter-section"><h3>📂 Category</h3><div class="filter-group" id="categoryFilters"></div></div>
+            <div class="filter-section"><h3>🌐 Languages</h3><div class="filter-group" id="languageFilters"></div></div>
+            <div class="filter-section"><h3>✅ Validity</h3><div class="filter-group" id="validityFilters"></div></div>
+            <div class="guides-list"><div id="guidesList"><div class="loading"><div class="spinner"></div><p>Loading tour guides...</p></div></div></div>
+        </div>
+        <div class="map-section" id="mapSection">
+            <div id="map"></div>
+            <div class="fullscreen-panel" id="fullscreenPanel">
+                <div class="close-panel" id="closePanelBtn">×</div>
+                <div class="header">
+                    <h1>🇱🇰 Filters</h1>
+                    <div class="stats"><div class="stat-box"><div class="label">Showing</div><div class="value" id="filteredCountFS">0</div></div></div>
+                </div>
+                <div class="search-box" style="margin-top:20px;"><input type="text" id="searchInputFS" placeholder="🔍 Search..."></div>
+                <div class="filter-section"><h3>📂 Category</h3><div class="filter-group" id="categoryFiltersFS"></div></div>
+                <div class="filter-section"><h3>🌐 Languages</h3><div class="filter-group" id="languageFiltersFS"></div></div>
+                <div class="filter-section"><h3>✅ Status</h3><div class="filter-group" id="validityFiltersFS"></div></div>
+                <button id="resetFiltersFS" style="width:100%;margin-top:15px;">Clear All</button>
+            </div>
+        </div>
+    </div>
+    <script>
+let map,markers=[],allGuides=[],filteredGuides=[],infoWindow,geocoder,activeFilters={search:'',categories:[],languages:[],validity:[]};
+const CSV_URL='https://raw.githubusercontent.com/chiranperera/sarisara-lanka-tour-guides-directory/main/Sample_Data_20_National_Tour%20Guides%20-%20National_Tour%20Guides.csv';
+const SRI_LANKA_CENTER={lat:7.8731,lng:80.7718};
+function initMap(){map=new google.maps.Map(document.getElementById('map'),{center:SRI_LANKA_CENTER,zoom:8,minZoom:7,maxZoom:18,mapTypeControl:true,streetViewControl:false,fullscreenControl:true});geocoder=new google.maps.Geocoder();infoWindow=new google.maps.InfoWindow();document.addEventListener('fullscreenchange',handleFullscreenChange);document.addEventListener('webkitfullscreenchange',handleFullscreenChange);loadTourGuidesData();setupEventListeners();}
+function handleFullscreenChange(){const p=document.getElementById('fullscreenPanel'),f=document.fullscreenElement||document.webkitFullscreenElement;if(f){p.classList.add('active');syncFilters();}else{p.classList.remove('active');}}
+function setupEventListeners(){document.getElementById('searchInput').addEventListener('input',e=>{activeFilters.search=e.target.value.toLowerCase();filterGuides();});document.getElementById('searchInputFS').addEventListener('input',e=>{activeFilters.search=e.target.value.toLowerCase();document.getElementById('searchInput').value=e.target.value;filterGuides();});document.getElementById('refreshBtn').addEventListener('click',loadTourGuidesData);document.getElementById('resetFiltersBtn').addEventListener('click',resetFilters);document.getElementById('resetFiltersFS').addEventListener('click',resetFilters);document.getElementById('closePanelBtn').addEventListener('click',()=>document.getElementById('fullscreenPanel').classList.remove('active'));}
+async function loadTourGuidesData(){showLoading();try{const r=await fetch(CSV_URL),t=await r.text();allGuides=parseCSV(t);await geocodeGuides();buildFilters();filterGuides();}catch(e){showError('Failed to load data. Please try again.');}}
+function parseCSV(t){const lines=t.trim().split('\n'),h=lines[0].split(',').map(x=>x.trim()),g=[];for(let i=1;i<lines.length;i++){const v=parseCSVLine(lines[i]);if(v.length===h.length){const o={};h.forEach((k,j)=>o[k]=v[j].trim());g.push(o);}}return g;}
+function parseCSVLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}r.push(c);return r;}
+async function geocodeGuides(){for(const g of allGuides){try{const loc=await geocodeAddress(g.Address+', Sri Lanka');g.lat=loc.lat;g.lng=loc.lng;}catch(e){g.lat=7.8731+(Math.random()-0.5)*3;g.lng=80.7718+(Math.random()-0.5)*2;}await sleep(300);}}
+function geocodeAddress(a){return new Promise((res,rej)=>{geocoder.geocode({address:a,componentRestrictions:{country:'LK'}},(r,s)=>{if(s==='OK'&&r[0])res({lat:r[0].geometry.location.lat(),lng:r[0].geometry.location.lng()});else rej(s);});});}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function buildFilters(){const cats=[...new Set(allGuides.map(g=>g.Category))],langs=[...new Set(allGuides.flatMap(g=>g.Language.split(',').map(l=>l.trim())))],vals=['Valid','Expiring Soon','Expired'];buildFilterChips('categoryFilters',cats,'categories');buildFilterChips('categoryFiltersFS',cats,'categories');buildFilterChips('languageFilters',langs,'languages');buildFilterChips('languageFiltersFS',langs,'languages');buildFilterChips('validityFilters',vals,'validity');buildFilterChips('validityFiltersFS',vals,'validity');}
+function buildFilterChips(id,opts,type){const c=document.getElementById(id);c.innerHTML='';opts.forEach(o=>{const ch=document.createElement('div');ch.className='filter-chip';ch.textContent=o;ch.dataset.value=o;ch.dataset.type=type;ch.addEventListener('click',()=>toggleFilter(ch,type,o));c.appendChild(ch);});}
+function toggleFilter(chip,type,val){chip.classList.toggle('active');const f=activeFilters[type],i=f.indexOf(val);if(i>-1)f.splice(i,1);else f.push(val);syncFilters();filterGuides();}
+function syncFilters(){['categories','languages','validity'].forEach(t=>{document.querySelectorAll(`[data-type="${t}"]`).forEach(ch=>{if(activeFilters[t].includes(ch.dataset.value))ch.classList.add('active');else ch.classList.remove('active');});});document.getElementById('searchInputFS').value=document.getElementById('searchInput').value;}
+function filterGuides(){filteredGuides=allGuides.filter(g=>{if(activeFilters.search&&!g.Name.toLowerCase().includes(activeFilters.search)&&!g.Reg_Number.toLowerCase().includes(activeFilters.search))return false;if(activeFilters.categories.length>0&&!activeFilters.categories.includes(g.Category))return false;if(activeFilters.languages.length>0){const gl=g.Language.split(',').map(l=>l.trim());if(!activeFilters.languages.some(l=>gl.includes(l)))return false;}if(activeFilters.validity.length>0&&!activeFilters.validity.includes(getValidityStatus(g.Validity)))return false;return true;});updateUI();updateMarkers();}
+function getValidityStatus(v){if(!v)return 'Unknown';const m=v.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})/);if(!m)return 'Valid';const[,d,mo,y]=m,ex=new Date(`${mo} ${d}, ${y}`),diff=Math.floor((ex-new Date())/(1000*60*60*24));if(diff<0)return 'Expired';if(diff<90)return 'Expiring Soon';return 'Valid';}
+function updateUI(){document.getElementById('totalCount').textContent=allGuides.length;document.getElementById('filteredCount').textContent=filteredGuides.length;document.getElementById('filteredCountFS').textContent=filteredGuides.length;renderGuidesList();}
+function renderGuidesList(){const c=document.getElementById('guidesList');if(filteredGuides.length===0){c.innerHTML='<div class="empty-state"><div class="empty-state-icon">🔍</div><p>No guides found.</p></div>';return;}c.innerHTML=filteredGuides.map(g=>createGuideCard(g)).join('');c.querySelectorAll('.guide-card').forEach((card,i)=>{card.addEventListener('click',()=>{const g=filteredGuides[i];map.setCenter({lat:g.lat,lng:g.lng});map.setZoom(14);const m=markers.find(mk=>mk.guideId===g.Reg_Number);if(m)google.maps.event.trigger(m,'click');});});}
+function createGuideCard(g){const ls=g.Language.split(',').map(l=>l.trim()),vs=getValidityStatus(g.Validity),vc=vs.toLowerCase().replace(' ','-');return `<div class="guide-card"><div class="guide-card-header"><img src="${g.Image||'https://via.placeholder.com/60'}" alt="${g.Name}" class="guide-avatar" onerror="this.src='https://via.placeholder.com/60'"><div class="guide-info"><div class="guide-name">${g.Name}</div><div class="guide-reg">${g.Reg_Number}</div><span class="guide-category">${g.Category}</span></div></div><div class="guide-details"><div class="detail-row"><span class="detail-icon">📞</span><a href="tel:${g.Phone_Number}">${g.Phone_Number}</a></div><div class="detail-row"><span class="detail-icon">📧</span><a href="mailto:${g.Email_Address}">${g.Email_Address}</a></div><div class="detail-row"><span class="detail-icon">📍</span><span>${g.Address}</span></div><div class="languages">${ls.map(l=>`<span class="language-tag">🌐 ${l}</span>`).join('')}</div><div class="validity ${vc}">${vs==='Valid'?'✅':vs==='Expiring Soon'?'⚠️':'❌'} ${g.Validity}</div></div></div>`;}
+function updateMarkers(){markers.forEach(m=>m.setMap(null));markers=[];filteredGuides.forEach(g=>{if(g.lat&&g.lng){const m=new google.maps.Marker({position:{lat:g.lat,lng:g.lng},map:map,title:g.Name,icon:{url:'https://maps.google.com/mapfiles/ms/icons/red-dot.png',scaledSize:new google.maps.Size(32,32)}});m.guideId=g.Reg_Number;m.addListener('click',()=>showInfoWindow(m,g));markers.push(m);}});if(markers.length>0&&markers.length<20){const b=new google.maps.LatLngBounds();markers.forEach(m=>b.extend(m.getPosition()));map.fitBounds(b);}}
+function showInfoWindow(m,g){const ls=g.Language.split(',').map(l=>l.trim()).join(', '),vs=getValidityStatus(g.Validity);const c=`<div style="padding:15px;max-width:280px;"><div style="font-size:16px;font-weight:700;margin-bottom:8px;">${g.Name}</div><div style="font-size:11px;color:#666;margin-bottom:10px;">${g.Reg_Number}</div><div style="margin-bottom:5px;font-size:12px;">📂 ${g.Category}</div><div style="margin-bottom:5px;font-size:12px;">🌐 ${ls}</div><div style="margin-bottom:5px;font-size:12px;">📞 <a href="tel:${g.Phone_Number}">${g.Phone_Number}</a></div><div style="margin-bottom:5px;font-size:12px;">📧 <a href="mailto:${g.Email_Address}">${g.Email_Address}</a></div><div style="margin-bottom:5px;font-size:12px;">📍 ${g.Address}</div><div style="margin-top:10px;font-size:11px;color:#666;">${vs==='Valid'?'✅':vs==='Expiring Soon'?'⚠️':'❌'} ${g.Validity}</div></div>`;infoWindow.setContent(c);infoWindow.open(map,m);}
+function resetFilters(){activeFilters={search:'',categories:[],languages:[],validity:[]};document.getElementById('searchInput').value='';document.getElementById('searchInputFS').value='';document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));filterGuides();}
+function showLoading(){document.getElementById('guidesList').innerHTML='<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';}
+function showError(msg){document.getElementById('guidesList').innerHTML=`<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>${msg}</p></div>`;}
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMzYuTtdxUK58Zu3Bo-WI7_yP1cuRZvdY&callback=initMap" async defer></script>
+</body>
+</html>
