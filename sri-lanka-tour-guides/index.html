@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lanka Tour Guides</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Input Section - Left 40% */
+        .input-section {
+            width: 40%;
+            height: 100vh;
+            background: #ffffff;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        /* Map Section - Right 60% */
+        .map-section {
+            width: 60%;
+            height: 100vh;
+            background-color: #f5f5f5;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* When map section is in fullscreen */
+        .map-section:fullscreen,
+        .map-section:-webkit-full-screen,
+        .map-section:-moz-full-screen,
+        .map-section:-ms-fullscreen {
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+
+        .map-section:fullscreen #map,
+        .map-section:-webkit-full-screen #map,
+        .map-section:-moz-full-screen #map,
+        .map-section:-ms-fullscreen #map {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .input-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: #000000;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        h3 {
+            color: #000000;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        #locationInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            color: #000000;
+        }
+
+        #locationInput:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+        }
+
+        #locationInput::placeholder {
+            color: #999999;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: 1px solid #000000;
+            border-radius: 6px;
+            background: #000000;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: #333333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Zoom Control Section */
+        .zoom-control {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .zoom-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .zoom-input-group label {
+            color: #000000;
+            font-weight: 500;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .zoom-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #zoomInput {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #000000;
+            outline: none;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+
+        #zoomInput:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+        }
+
+        #zoomInput::-webkit-inner-spin-button,
+        #zoomInput::-webkit-outer-spin-button {
+            opacity: 1;
+            height: 30px;
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: 600;
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .zoom-btn:hover {
+            background: #333333;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .zoom-info {
+            text-align: left;
+            margin-top: 5px;
+        }
+
+        .zoom-info small {
+            color: #666666;
+            font-size: 11px;
+        }
+
+        .secondary-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #d0d0d0;
+        }
+
+        .secondary-btn:hover {
+            background: #f5f5f5;
+            border-color: #000000;
+        }
+
+        .optimize-btn {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #000000;
+        }
+
+        .optimize-btn:hover {
+            background: #333333;
+        }
+
+        .itinerary-list {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 120px;
+        }
+
+        #locationsList {
+            margin-bottom: 15px;
+            min-height: 50px;
+        }
+
+        .location-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #ffffff;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s ease;
+        }
+
+        .location-item:hover {
+            border-color: #000000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .location-number {
+            background: #000000;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .location-name {
+            font-weight: 500;
+            color: #000000;
+            font-size: 15px;
+        }
+
+        .remove-btn {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            padding: 0;
+            font-size: 20px;
+            line-height: 1;
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+            transform: scale(1.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-top: 15px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999999;
+            padding: 30px 20px;
+            font-size: 14px;
+        }
+
+        /* Fullscreen Panel Styles */
+        .fullscreen-panel {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: calc(100vh - 40px);
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 20px;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .fullscreen-panel.active {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Ensure panel is visible in fullscreen mode */
+        .map-section:fullscreen .fullscreen-panel.active,
+        .map-section:-webkit-full-screen .fullscreen-panel.active,
+        .map-section:-moz-full-screen .fullscreen-panel.active,
+        .map-section:-ms-fullscreen .fullscreen-panel.active {
+            display: block !important;
+            z-index: 10000 !important;
+        }
+
+        .fullscreen-panel h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .fullscreen-panel h3 {
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .fullscreen-panel .form-group {
+            flex-direction: column;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .fullscreen-panel button {
+            margin-top: 5px;
+        }
+
+        .fullscreen-panel .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Distance Display Styles */
+        .distance-info {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .distance-label {
+            font-size: 12px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .distance-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            margin: 0;
+        }
+
+        .distance-value .unit {
+            font-size: 16px;
+            font-weight: 500;
+            color: #666666;
+        }
+
+        .leg-distance {
+            font-size: 11px;
+            color: #666666;
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        .fullscreen-panel .itinerary-list {
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .fullscreen-panel .location-item {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .fullscreen-panel .location-number {
+            width: 24px;
+            height: 24px;
+            font-size: 11px;
+        }
+
+        .fullscreen-panel .location-name {
+            font-size: 13px;
+        }
+
+        .fullscreen-panel .zoom-control {
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        .fullscreen-panel input[type="text"],
+        .fullscreen-panel input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .fullscreen-panel input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Zoom Lock Button */
+        .zoom-lock-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
+            padding: 8px 16px;
+            font-size: 13px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .zoom-lock-btn.locked {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .zoom-lock-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .zoom-lock-btn.locked:hover {
+            background: #333333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .input-section {
+                width: 100%;
+                height: 50vh;
+            }
+
+            .map-section {
+                width: 100%;
+                height: 50vh;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .fullscreen-panel {
+                width: 90%;
+                right: 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Location Input Section (Left 40%) -->
+        <div class="input-section">
+            <div class="input-container">
+                <h2>Add Destination</h2>
+                <div class="form-group">
+                    <input
+                        type="text"
+                        id="locationInput"
+                        placeholder="Enter location in Sri Lanka (e.g., Colombo, Kandy, Galle)"
+                        autocomplete="off"
+                    >
+                    <button id="addLocationBtn">Add Location</button>
+                </div>
+
+                <!-- Zoom Control Section -->
+                <div class="zoom-control">
+                    <h3>Map Zoom Level</h3>
+                    <div class="zoom-input-group">
+                        <label for="zoomInput">Enter Zoom Level (0-15):</label>
+                        <div class="zoom-input-wrapper">
+                            <button class="zoom-btn" id="zoomDecrement">-</button>
+                            <input
+                                type="number"
+                                id="zoomInput"
+                                min="0"
+                                max="15"
+                                step="0.1"
+                                value="8.6"
+                                placeholder="Enter zoom (e.g., 7.25)"
+                            >
+                            <button class="zoom-btn" id="zoomIncrement">+</button>
+                        </div>
+                        <button class="zoom-lock-btn" id="zoomLockBtn">
+                            <span id="lockIcon">🔓</span>
+                            <span id="lockText">Lock Zoom & Pan</span>
+                        </button>
+                        <div class="zoom-info">
+                            <small>Range: 0 (Very Far) to 15 (Very Close)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distance Display -->
+                <div class="distance-info" id="distanceInfo" style="display: none;">
+                    <div class="distance-label">Total Journey Distance</div>
+                    <div class="distance-value">
+                        <span id="totalDistance">0</span> <span class="unit">km</span>
+                    </div>
+                </div>
+
+                <div class="itinerary-list">
+                    <h3>Your Itinerary</h3>
+                    <div id="locationsList">
+                        <div class="empty-message">No destinations added yet. Start planning your journey!</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="clearAllBtn" class="secondary-btn">Clear All</button>
+                        <button id="optimizeRouteBtn" class="optimize-btn">Optimize Route</button>
+                        <button id="resetOrderBtn" class="secondary-btn">Reset Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section (Right 60%) -->
+        <div class="map-section" id="mapSection">
+            <div id="map"></div>
+
+            <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
+            <div class="fullscreen-panel" id="fullscreenPanel">
+                <h2>Add Destination</h2>
+                <div class="form-group">
+                    <input
+                        type="text"
+                        id="locationInputFS"
+                        placeholder="Enter location in Sri Lanka"
+                        autocomplete="off"
+                    >
+                    <button id="addLocationBtnFS">Add Location</button>
+                </div>
+
+                <div class="zoom-control">
+                    <h3>Map Zoom Level</h3>
+                    <div class="zoom-input-group">
+                        <label for="zoomInputFS">Enter Zoom Level (0-15):</label>
+                        <div class="zoom-input-wrapper">
+                            <button class="zoom-btn" id="zoomDecrementFS">-</button>
+                            <input
+                                type="number"
+                                id="zoomInputFS"
+                                min="0"
+                                max="15"
+                                step="0.1"
+                                value="8.6"
+                                placeholder="Enter zoom"
+                            >
+                            <button class="zoom-btn" id="zoomIncrementFS">+</button>
+                        </div>
+                        <button class="zoom-lock-btn" id="zoomLockBtnFS">
+                            <span id="lockIconFS">🔓</span>
+                            <span id="lockTextFS">Lock Zoom & Pan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Distance Display for Fullscreen -->
+                <div class="distance-info" id="distanceInfoFS" style="display: none;">
+                    <div class="distance-label">Total Journey Distance</div>
+                    <div class="distance-value">
+                        <span id="totalDistanceFS">0</span> <span class="unit">km</span>
+                    </div>
+                </div>
+
+                <div class="itinerary-list">
+                    <h3>Your Itinerary</h3>
+                    <div id="locationsListFS">
+                        <div class="empty-message">No destinations added yet</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="clearAllBtnFS" class="secondary-btn">Clear All</button>
+                        <button id="optimizeRouteBtnFS" class="optimize-btn">Optimize Route</button>
+                        <button id="resetOrderBtnFS" class="secondary-btn">Reset Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let map;
+        let markers = [];
+        let locations = [];
+        let originalLocations = [];  // Store original order for reset
+        let directionsService;
+        let directionsRenderer;
+        let geocoder;
+        let animationInterval;
+        let isZoomLocked = false;
+        let isFullscreen = false;
+        let autocomplete;
+        let autocompleteFS;
+        let totalDistanceKm = 0;
+        let legDistances = [];  // Store distances between consecutive locations
+
+        // Sri Lanka center coordinates
+        const SRI_LANKA_CENTER = { lat: 7.8731, lng: 80.7718 };
+
+        // Sri Lanka bounds to restrict map view
+        const SRI_LANKA_BOUNDS = {
+            north: 10.0,
+            south: 5.9,
+            west: 79.5,
+            east: 82.0
+        };
+
+        // Function to create custom numbered marker icon with black background and white text
+        function createNumberedMarkerIcon(number) {
+            const svg = `
+                <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Pin shape with black background -->
+                    <path d="M16 0C9.373 0 4 5.373 4 12c0 9 12 28 12 28s12-19 12-28c0-6.627-5.373-12-12-12z"
+                          fill="#000000" stroke="#FFFFFF" stroke-width="1"/>
+                    <!-- White number text -->
+                    <text x="16" y="16" text-anchor="middle" font-family="Arial, sans-serif"
+                          font-size="14" font-weight="bold" fill="#FFFFFF">${number}</text>
+                </svg>
+            `;
+
+            return {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+                scaledSize: new google.maps.Size(32, 42),
+                anchor: new google.maps.Point(16, 42)
+            };
+        }
+
+        // This function will be called by Google Maps API
+        function initMap() {
+            console.log('Initializing map...');
+
+            // Create map centered on Sri Lanka with flexible zoom and gray/black styling
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: SRI_LANKA_CENTER,
+                zoom: 8.6,
+                minZoom: 0,
+                maxZoom: 15,
+                restriction: {
+                    latLngBounds: SRI_LANKA_BOUNDS,
+                    strictBounds: false
+                },
+                mapTypeControl: true,
+                streetViewControl: false,
+                fullscreenControl: true,
+                zoomControl: true,
+                gestureHandling: 'auto',
+                styles: [
+                    {
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#f5f5f5"}]
+                    },
+                    {
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#616161"}]
+                    },
+                    {
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#f5f5f5"}]
+                    },
+                    {
+                        "featureType": "administrative.land_parcel",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#bdbdbd"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#eeeeee"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#757575"}]
+                    },
+                    {
+                        "featureType": "poi.park",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#e5e5e5"}]
+                    },
+                    {
+                        "featureType": "poi.park",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#9e9e9e"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "road.arterial",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#757575"}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#dadada"}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#616161"}]
+                    },
+                    {
+                        "featureType": "road.local",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#9e9e9e"}]
+                    },
+                    {
+                        "featureType": "transit.line",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#e5e5e5"}]
+                    },
+                    {
+                        "featureType": "transit.station",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#eeeeee"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#c9c9c9"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#9e9e9e"}]
+                    }
+                ]
+            });
+
+            console.log('Map initialized successfully');
+
+            // Initialize services
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,  // Suppress default markers, we'll use our custom black pins
+                polylineOptions: {
+                    strokeColor: '#FFB700',
+                    strokeWeight: 3,
+                    strokeOpacity: 0.8,
+                    icons: [{
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            fillColor: '#FFB700',
+                            fillOpacity: 1,
+                            strokeColor: '#000000',
+                            strokeWeight: 1.5,
+                            scale: 4
+                        },
+                        offset: '0',
+                        repeat: '30px'
+                    }]
+                }
+            });
+            geocoder = new google.maps.Geocoder();
+
+            // Start route animation
+            startRouteAnimation();
+
+            // Set up autocomplete
+            const input = document.getElementById('locationInput');
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: 'lk' },
+                fields: ['formatted_address', 'geometry', 'name']
+            });
+
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (place.geometry) {
+                    addLocationFromPlace(place);
+                }
+            });
+
+            // Set up event listeners
+            document.getElementById('addLocationBtn').addEventListener('click', addLocation);
+            document.getElementById('clearAllBtn').addEventListener('click', clearAll);
+            document.getElementById('optimizeRouteBtn').addEventListener('click', optimizeRoute);
+            document.getElementById('resetOrderBtn').addEventListener('click', resetOrder);
+
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addLocation();
+                }
+            });
+
+            // Zoom control event listeners
+            const zoomInput = document.getElementById('zoomInput');
+            const zoomIncrement = document.getElementById('zoomIncrement');
+            const zoomDecrement = document.getElementById('zoomDecrement');
+
+            // Handle zoom input changes
+            zoomInput.addEventListener('change', function() {
+                let zoom = parseFloat(this.value);
+
+                // Validate zoom level
+                if (isNaN(zoom)) {
+                    zoom = 8.6;
+                } else if (zoom < 0) {
+                    zoom = 0;
+                } else if (zoom > 15) {
+                    zoom = 15;
+                }
+
+                this.value = zoom;
+                if (!isZoomLocked) {
+                    map.setZoom(zoom);
+                }
+            });
+
+            // Allow Enter key to apply zoom
+            zoomInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur(); // Trigger change event
+                }
+            });
+
+            // Increment button
+            zoomIncrement.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInput.value) || 8.6;
+                let newZoom = Math.min(15, currentZoom + 0.5);
+                zoomInput.value = newZoom;
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
+            });
+
+            // Decrement button
+            zoomDecrement.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInput.value) || 8.6;
+                let newZoom = Math.max(0, currentZoom - 0.5);
+                zoomInput.value = newZoom;
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
+            });
+
+            // Update input when map zoom changes (via map controls or scroll)
+            map.addListener('zoom_changed', function() {
+                if (!isZoomLocked) {
+                    const currentZoom = map.getZoom();
+                    zoomInput.value = currentZoom.toFixed(2);
+                    document.getElementById('zoomInputFS').value = currentZoom.toFixed(2);
+                }
+            });
+
+            // Zoom Lock functionality
+            const zoomLockBtn = document.getElementById('zoomLockBtn');
+            const zoomLockBtnFS = document.getElementById('zoomLockBtnFS');
+
+            zoomLockBtn.addEventListener('click', toggleZoomLock);
+            zoomLockBtnFS.addEventListener('click', toggleZoomLock);
+
+            // Set up autocomplete for fullscreen panel
+            const inputFS = document.getElementById('locationInputFS');
+            autocompleteFS = new google.maps.places.Autocomplete(inputFS, {
+                componentRestrictions: { country: 'lk' },
+                fields: ['formatted_address', 'geometry', 'name']
+            });
+
+            autocompleteFS.addListener('place_changed', function() {
+                const place = autocompleteFS.getPlace();
+                if (place.geometry) {
+                    addLocationFromPlace(place);
+                    document.getElementById('locationInputFS').value = '';
+                }
+            });
+
+            // Fullscreen panel event listeners
+            document.getElementById('addLocationBtnFS').addEventListener('click', addLocationFS);
+            document.getElementById('clearAllBtnFS').addEventListener('click', clearAll);
+            document.getElementById('optimizeRouteBtnFS').addEventListener('click', optimizeRoute);
+            document.getElementById('resetOrderBtnFS').addEventListener('click', resetOrder);
+
+            inputFS.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addLocationFS();
+                }
+            });
+
+            // Fullscreen zoom controls
+            const zoomInputFS = document.getElementById('zoomInputFS');
+            const zoomIncrementFS = document.getElementById('zoomIncrementFS');
+            const zoomDecrementFS = document.getElementById('zoomDecrementFS');
+
+            zoomInputFS.addEventListener('change', function() {
+                let zoom = parseFloat(this.value);
+                if (isNaN(zoom)) {
+                    zoom = 8.6;
+                } else if (zoom < 0) {
+                    zoom = 0;
+                } else if (zoom > 15) {
+                    zoom = 15;
+                }
+                this.value = zoom;
+                zoomInput.value = zoom;
+                if (!isZoomLocked) {
+                    map.setZoom(zoom);
+                }
+            });
+
+            zoomInputFS.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            });
+
+            zoomIncrementFS.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInputFS.value) || 8.6;
+                let newZoom = Math.min(15, currentZoom + 0.5);
+                zoomInputFS.value = newZoom;
+                zoomInput.value = newZoom;
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
+            });
+
+            zoomDecrementFS.addEventListener('click', function() {
+                let currentZoom = parseFloat(zoomInputFS.value) || 8.6;
+                let newZoom = Math.max(0, currentZoom - 0.5);
+                zoomInputFS.value = newZoom;
+                zoomInput.value = newZoom;
+                if (!isZoomLocked) {
+                    map.setZoom(newZoom);
+                }
+            });
+
+            console.log('All event listeners set up');
+        }
+
+        // Toggle zoom lock
+        function toggleZoomLock() {
+            isZoomLocked = !isZoomLocked;
+
+            const lockIcon = document.getElementById('lockIcon');
+            const lockText = document.getElementById('lockText');
+            const lockIconFS = document.getElementById('lockIconFS');
+            const lockTextFS = document.getElementById('lockTextFS');
+            const zoomLockBtn = document.getElementById('zoomLockBtn');
+            const zoomLockBtnFS = document.getElementById('zoomLockBtnFS');
+
+            if (isZoomLocked) {
+                lockIcon.textContent = '🔒';
+                lockText.textContent = 'Unlock Zoom & Pan';
+                lockIconFS.textContent = '🔒';
+                lockTextFS.textContent = 'Unlock Zoom & Pan';
+                zoomLockBtn.classList.add('locked');
+                zoomLockBtnFS.classList.add('locked');
+
+                // Disable zoom and pan
+                map.setOptions({
+                    zoomControl: false,
+                    scrollwheel: false,
+                    disableDoubleClickZoom: true,
+                    draggable: false,
+                    gestureHandling: 'none'
+                });
+            } else {
+                lockIcon.textContent = '🔓';
+                lockText.textContent = 'Lock Zoom & Pan';
+                lockIconFS.textContent = '🔓';
+                lockTextFS.textContent = 'Lock Zoom & Pan';
+                zoomLockBtn.classList.remove('locked');
+                zoomLockBtnFS.classList.remove('locked');
+
+                // Enable zoom and pan
+                map.setOptions({
+                    zoomControl: true,
+                    scrollwheel: true,
+                    disableDoubleClickZoom: false,
+                    draggable: true,
+                    gestureHandling: 'auto'
+                });
+            }
+        }
+
+        // Function to handle fullscreen changes
+        function handleFullscreenChange() {
+            const fullscreenPanel = document.getElementById('fullscreenPanel');
+            const mapSection = document.getElementById('mapSection');
+            const mapDiv = document.getElementById('map');
+
+            // Check multiple fullscreen element properties for browser compatibility
+            const fullscreenElement = document.fullscreenElement ||
+                                     document.webkitFullscreenElement ||
+                                     document.mozFullScreenElement ||
+                                     document.msFullscreenElement;
+
+            console.log('Fullscreen element:', fullscreenElement);
+
+            if (fullscreenElement) {
+                // Entering fullscreen - append panel to the fullscreen element
+                console.log('Entering fullscreen mode - showing panel');
+                isFullscreen = true;
+
+                // Move the panel into the fullscreen element
+                fullscreenElement.appendChild(fullscreenPanel);
+
+                // Show the panel
+                fullscreenPanel.classList.add('active');
+                fullscreenPanel.style.display = 'block';
+                fullscreenPanel.style.visibility = 'visible';
+
+                // Reinitialize autocomplete for fullscreen input
+                const inputFS = document.getElementById('locationInputFS');
+                if (autocompleteFS) {
+                    google.maps.event.clearInstanceListeners(inputFS);
+                }
+                autocompleteFS = new google.maps.places.Autocomplete(inputFS, {
+                    componentRestrictions: { country: 'lk' },
+                    fields: ['formatted_address', 'geometry', 'name']
+                });
+                autocompleteFS.addListener('place_changed', function() {
+                    const place = autocompleteFS.getPlace();
+                    if (place.geometry) {
+                        addLocationFromPlace(place);
+                        document.getElementById('locationInputFS').value = '';
+                    }
+                });
+
+                syncLocationsList();
+
+                console.log('Panel appended to fullscreen element and made visible');
+            } else {
+                // Exiting fullscreen - move panel back and hide it
+                console.log('Exiting fullscreen mode - hiding panel');
+                isFullscreen = false;
+
+                // Move panel back to map-section
+                mapSection.appendChild(fullscreenPanel);
+
+                // Hide the panel
+                fullscreenPanel.classList.remove('active');
+                fullscreenPanel.style.display = 'none';
+            }
+        }
+
+        // Listen for fullscreen changes (when Google Maps fullscreen is activated)
+        // Add listeners for all browser prefixes
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        // Sync locations list between main and fullscreen panel
+        function syncLocationsList() {
+            const mainList = document.getElementById('locationsList').innerHTML;
+            document.getElementById('locationsListFS').innerHTML = mainList;
+        }
+
+        // Add location from fullscreen panel
+        function addLocationFS() {
+            const input = document.getElementById('locationInputFS');
+            const locationName = input.value.trim();
+
+            if (!locationName) {
+                alert('Please enter a location');
+                return;
+            }
+
+            geocoder.geocode({
+                address: locationName + ', Sri Lanka',
+                componentRestrictions: { country: 'lk' }
+            }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const location = {
+                        name: locationName,
+                        address: results[0].formatted_address,
+                        lat: results[0].geometry.location.lat(),
+                        lng: results[0].geometry.location.lng()
+                    };
+                    addLocationToItinerary(location);
+                    input.value = '';
+                } else {
+                    alert('Location not found in Sri Lanka. Please try again.');
+                }
+            });
+        }
+
+        function addLocationFromPlace(place) {
+            const location = {
+                name: place.name || place.formatted_address,
+                address: place.formatted_address,
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng()
+            };
+
+            addLocationToItinerary(location);
+            document.getElementById('locationInput').value = '';
+        }
+
+        function addLocation() {
+            const input = document.getElementById('locationInput');
+            const locationName = input.value.trim();
+
+            if (!locationName) {
+                alert('Please enter a location');
+                return;
+            }
+
+            geocoder.geocode({
+                address: locationName + ', Sri Lanka',
+                componentRestrictions: { country: 'lk' }
+            }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const location = {
+                        name: locationName,
+                        address: results[0].formatted_address,
+                        lat: results[0].geometry.location.lat(),
+                        lng: results[0].geometry.location.lng()
+                    };
+                    addLocationToItinerary(location);
+                    input.value = '';
+                } else {
+                    alert('Location not found in Sri Lanka. Please try again.');
+                }
+            });
+        }
+
+        function addLocationToItinerary(location) {
+            locations.push(location);
+
+            // Save original order (deep copy)
+            originalLocations = JSON.parse(JSON.stringify(locations));
+
+            const marker = new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },
+                map: map,
+                title: location.name,
+                icon: createNumberedMarkerIcon(locations.length),
+                animation: google.maps.Animation.DROP
+            });
+
+            markers.push(marker);
+            updateLocationsList();
+            drawRoute();
+            // Do not auto-pan - keep map at user's chosen zoom/position
+        }
+
+        function updateLocationsList() {
+            const listContainer = document.getElementById('locationsList');
+
+            if (locations.length === 0) {
+                listContainer.innerHTML = '<div class="empty-message">No destinations added yet. Start planning your journey!</div>';
+                syncLocationsList();
+                return;
+            }
+
+            listContainer.innerHTML = '';
+
+            locations.forEach((location, index) => {
+                const item = document.createElement('div');
+                item.className = 'location-item';
+
+                // Build location info HTML
+                let locationInfoHTML = `
+                    <div class="location-info">
+                        <div class="location-number">${index + 1}</div>
+                        <div class="location-name">
+                            ${location.name}
+                            ${index < legDistances.length && legDistances[index] > 0 ?
+                                `<div class="leg-distance">↓ ${legDistances[index]} km to next location</div>` :
+                                ''}
+                        </div>
+                    </div>
+                    <button class="remove-btn" onclick="removeLocation(${index})" title="Remove location">×</button>
+                `;
+
+                item.innerHTML = locationInfoHTML;
+                listContainer.appendChild(item);
+            });
+
+            // Sync with fullscreen panel
+            syncLocationsList();
+        }
+
+        function removeLocation(index) {
+            locations.splice(index, 1);
+
+            // Remove all markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            // Recreate markers with updated numbers
+            locations.forEach((location, i) => {
+                const marker = new google.maps.Marker({
+                    position: { lat: location.lat, lng: location.lng },
+                    map: map,
+                    title: location.name,
+                    icon: createNumberedMarkerIcon(i + 1)
+                });
+                markers.push(marker);
+            });
+
+            updateLocationsList();
+            drawRoute();
+        }
+
+        function clearAll() {
+            if (locations.length === 0) return;
+
+            if (confirm('Are you sure you want to clear all locations?')) {
+                locations = [];
+                markers.forEach(marker => marker.setMap(null));
+                markers = [];
+                directionsRenderer.setMap(null);
+                directionsRenderer.setMap(map);
+                totalDistanceKm = 0;
+                legDistances = [];
+                updateLocationsList();
+                updateDistanceDisplay();
+                // Keep the current map position and zoom level
+                // map.setCenter(SRI_LANKA_CENTER);
+                // User maintains their chosen zoom level
+            }
+        }
+
+        function drawRoute() {
+            if (locations.length < 2) {
+                directionsRenderer.setDirections({ routes: [] });
+                totalDistanceKm = 0;
+                legDistances = [];
+                updateDistanceDisplay();
+                return;
+            }
+
+            const waypoints = locations.slice(1, -1).map(loc => ({
+                location: { lat: loc.lat, lng: loc.lng },
+                stopover: true
+            }));
+
+            const request = {
+                origin: { lat: locations[0].lat, lng: locations[0].lng },
+                destination: { lat: locations[locations.length - 1].lat, lng: locations[locations.length - 1].lng },
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status === 'OK') {
+                    markers.forEach(marker => marker.setMap(null));
+                    markers = [];
+
+                    // If zoom is locked, preserve the current viewport
+                    if (isZoomLocked) {
+                        directionsRenderer.setOptions({ preserveViewport: true });
+                    } else {
+                        directionsRenderer.setOptions({ preserveViewport: false });
+                    }
+
+                    directionsRenderer.setDirections(result);
+
+                    // Calculate distances
+                    calculateDistances(result);
+
+                    // Restart animation for the new route
+                    startRouteAnimation();
+
+                    locations.forEach((location, index) => {
+                        const marker = new google.maps.Marker({
+                            position: { lat: location.lat, lng: location.lng },
+                            map: map,
+                            title: location.name,
+                            icon: createNumberedMarkerIcon(index + 1)
+                        });
+                        markers.push(marker);
+                    });
+                }
+            });
+        }
+
+        // Calculate distances from DirectionsResult
+        function calculateDistances(result) {
+            if (!result || !result.routes || result.routes.length === 0) {
+                totalDistanceKm = 0;
+                legDistances = [];
+                updateDistanceDisplay();
+                return;
+            }
+
+            const route = result.routes[0];
+            let totalMeters = 0;
+            legDistances = [];
+
+            // Sum up all legs
+            route.legs.forEach(leg => {
+                const distanceMeters = leg.distance.value;
+                const distanceKm = (distanceMeters / 1000).toFixed(1);
+                legDistances.push(parseFloat(distanceKm));
+                totalMeters += distanceMeters;
+            });
+
+            totalDistanceKm = (totalMeters / 1000).toFixed(1);
+            updateDistanceDisplay();
+        }
+
+        // Update distance display in UI
+        function updateDistanceDisplay() {
+            const distanceInfo = document.getElementById('distanceInfo');
+            const distanceInfoFS = document.getElementById('distanceInfoFS');
+            const totalDistanceEl = document.getElementById('totalDistance');
+            const totalDistanceFSEl = document.getElementById('totalDistanceFS');
+
+            if (locations.length < 2 || totalDistanceKm === 0) {
+                // Hide distance display if no route
+                distanceInfo.style.display = 'none';
+                distanceInfoFS.style.display = 'none';
+            } else {
+                // Show and update distance display
+                distanceInfo.style.display = 'block';
+                distanceInfoFS.style.display = 'block';
+                totalDistanceEl.textContent = totalDistanceKm;
+                totalDistanceFSEl.textContent = totalDistanceKm;
+            }
+        }
+
+        // Animate route lines with flowing energy effect
+        function startRouteAnimation() {
+            let offset = 0;
+
+            if (animationInterval) {
+                clearInterval(animationInterval);
+            }
+
+            animationInterval = setInterval(function() {
+                offset = (offset + 3) % 30;
+
+                // Check if there's a route to animate
+                const directions = directionsRenderer.getDirections();
+
+                if (directions && directions.routes && directions.routes.length > 0) {
+                    const polylineOptions = {
+                        strokeColor: '#FFB700',
+                        strokeWeight: 3,
+                        strokeOpacity: 0.8,
+                        icons: [{
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                fillColor: '#FFB700',
+                                fillOpacity: 1,
+                                strokeColor: '#000000',
+                                strokeWeight: 1.5,
+                                scale: 4
+                            },
+                            offset: offset + 'px',
+                            repeat: '30px'
+                        }]
+                    };
+
+                    directionsRenderer.setOptions({ polylineOptions: polylineOptions });
+                }
+            }, 60); // Update every 60ms for smooth flowing animation
+        }
+
+        function optimizeRoute() {
+            if (locations.length < 3) {
+                alert('Add at least 3 locations to optimize the route');
+                return;
+            }
+
+            const waypoints = locations.slice(1, -1).map(loc => ({
+                location: { lat: loc.lat, lng: loc.lng },
+                stopover: true
+            }));
+
+            const request = {
+                origin: { lat: locations[0].lat, lng: locations[0].lng },
+                destination: { lat: locations[locations.length - 1].lat, lng: locations[locations.length - 1].lng },
+                waypoints: waypoints,
+                optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status === 'OK') {
+                    const route = result.routes[0];
+                    const newOrder = [locations[0]];
+
+                    route.waypoint_order.forEach(index => {
+                        newOrder.push(locations[index + 1]);
+                    });
+
+                    newOrder.push(locations[locations.length - 1]);
+                    locations = newOrder;
+
+                    markers.forEach(marker => marker.setMap(null));
+                    markers = [];
+
+                    updateLocationsList();
+                    drawRoute();
+                }
+            });
+        }
+
+        function resetOrder() {
+            if (originalLocations.length === 0) {
+                alert('No original order to restore');
+                return;
+            }
+
+            if (locations.length === 0) {
+                alert('No locations to reset');
+                return;
+            }
+
+            // Restore original order
+            locations = JSON.parse(JSON.stringify(originalLocations));
+
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            // Update list and redraw route
+            updateLocationsList();
+            drawRoute();
+        }
+    </script>
+
+    <!-- Load Google Maps API with callback -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMzYuTtdxUK58Zu3Bo-WI7_yP1cuRZvdY&libraries=places&callback=initMap" async defer></script>
+</body>
+</html>
