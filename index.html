@@ -25,193 +25,28 @@
             width: 100%;
         }
 
-        /* Input Section - Left sidebar (collapsible) */
+        /* Input Section - Left 40% */
         .input-section {
-            width: 380px;
-            flex-shrink: 0;
+            width: 40%;
             height: 100vh;
             background: #ffffff;
-            padding: 24px 24px 24px 24px;
+            padding: 30px;
             overflow-y: auto;
             border-right: 1px solid #e0e0e0;
-            transition: width 0.28s cubic-bezier(.2,.8,.2,1), padding 0.28s cubic-bezier(.2,.8,.2,1);
-            position: relative;
         }
 
-        .input-section.collapsed {
-            width: 56px;
-            padding: 12px 0;
-            overflow: hidden;
-        }
-
-        .input-section.collapsed .input-container { display: none; }
-
-        /* Sidebar collapse toggle */
-        .sidebar-toggle {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            width: 32px;
-            height: 32px;
-            min-width: 32px;
-            padding: 0;
-            border-radius: 8px;
-            background: #ffffff;
-            color: #000000;
-            border: 1px solid #d0d0d0;
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 5;
-        }
-
-        .sidebar-toggle:hover {
-            background: #000000;
-            color: #ffffff;
-            border-color: #000000;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .input-section.collapsed .sidebar-toggle {
-            position: relative;
-            top: 0;
-            right: 0;
-            margin: 0 auto;
-        }
-
-        /* Map Section - fills remaining space, dark bg for letterboxing */
+        /* Map Section - Right 60% */
         .map-section {
-            flex: 1;
-            min-width: 0;
+            width: 60%;
             height: 100vh;
-            background-color: #1a1a1a;
+            background-color: #f5f5f5;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        /* Map viewport: holds the map and constrains aspect ratio for video framing */
-        .map-viewport {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #f5f5f5;
-            overflow: hidden;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.06);
-        }
-
-        .map-viewport[data-ratio="16:9"] {
-            aspect-ratio: 16 / 9;
-            width: auto;
-            height: auto;
-            max-width: calc(100% - 32px);
-            max-height: calc(100% - 32px);
-        }
-
-        .map-viewport[data-ratio="9:16"] {
-            aspect-ratio: 9 / 16;
-            width: auto;
-            height: auto;
-            max-width: calc(100% - 32px);
-            max-height: calc(100% - 32px);
-        }
-
-        .map-viewport[data-ratio="1:1"] {
-            aspect-ratio: 1 / 1;
-            width: auto;
-            height: auto;
-            max-width: calc(100% - 32px);
-            max-height: calc(100% - 32px);
         }
 
         #map {
             width: 100%;
             height: 100%;
             position: relative;
-        }
-
-        /* Aspect ratio preset bar (top of sidebar) */
-        .aspect-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px;
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .aspect-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #666666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0 6px;
-        }
-
-        .aspect-btn {
-            flex: 1;
-            padding: 6px 8px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            background: transparent;
-            color: #666666;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .aspect-btn:hover {
-            background: #ffffff;
-            color: #000000;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .aspect-btn.active {
-            background: #000000;
-            color: #ffffff;
-            border-color: #000000;
-        }
-
-        /* Aspect-frame corner ticks (visual guide that the frame is intentional) */
-        .map-viewport[data-ratio]:not([data-ratio="free"])::before,
-        .map-viewport[data-ratio]:not([data-ratio="free"])::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.85);
-            pointer-events: none;
-            z-index: 4;
-        }
-
-        .map-viewport[data-ratio]:not([data-ratio="free"])::before {
-            top: 8px;
-            left: 8px;
-            border-right: none;
-            border-bottom: none;
-        }
-
-        .map-viewport[data-ratio]:not([data-ratio="free"])::after {
-            bottom: 8px;
-            right: 8px;
-            border-left: none;
-            border-top: none;
         }
 
         /* When map section is in fullscreen */
@@ -677,30 +512,12 @@
 
             .input-section {
                 width: 100%;
-                height: 45vh;
-                padding: 16px;
-            }
-
-            .input-section.collapsed {
-                width: 100%;
-                height: 56px;
-                padding: 8px 16px;
+                height: 50vh;
             }
 
             .map-section {
                 width: 100%;
-                height: 55vh;
-            }
-
-            /* On mobile we ignore the aspect-ratio frame and let the map fill */
-            .map-viewport[data-ratio="16:9"],
-            .map-viewport[data-ratio="9:16"],
-            .map-viewport[data-ratio="1:1"] {
-                aspect-ratio: auto;
-                width: 100%;
-                height: 100%;
-                max-width: 100%;
-                max-height: 100%;
+                height: 50vh;
             }
 
             .form-group {
@@ -715,31 +532,15 @@
                 width: 90%;
                 right: 5%;
             }
-
-            .sidebar-toggle {
-                top: 8px;
-                right: 8px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Location Input Section (Left sidebar, collapsible) -->
-        <div class="input-section" id="inputSection">
-            <button class="sidebar-toggle" id="sidebarToggle" title="Collapse sidebar" aria-label="Toggle sidebar">«</button>
+        <!-- Location Input Section (Left 40%) -->
+        <div class="input-section">
             <div class="input-container">
                 <h2>Add Destination</h2>
-
-                <!-- Aspect ratio presets for video framing -->
-                <div class="aspect-bar" role="group" aria-label="Map aspect ratio for video framing">
-                    <span class="aspect-label">Frame</span>
-                    <button class="aspect-btn active" data-ratio="free" title="Fill the available space">Full</button>
-                    <button class="aspect-btn" data-ratio="16:9" title="Landscape video (YouTube)">16:9</button>
-                    <button class="aspect-btn" data-ratio="9:16" title="Vertical video (Reels/Shorts/TikTok)">9:16</button>
-                    <button class="aspect-btn" data-ratio="1:1" title="Square (Instagram feed)">1:1</button>
-                </div>
-
                 <div class="form-group">
                     <input
                         type="text"
@@ -802,9 +603,7 @@
 
         <!-- Map Section (Right 60%) -->
         <div class="map-section" id="mapSection">
-            <div class="map-viewport" id="mapViewport" data-ratio="free">
-                <div id="map"></div>
-            </div>
+            <div id="map"></div>
 
             <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
             <div class="fullscreen-panel" id="fullscreenPanel">
@@ -933,43 +732,93 @@
                 fullscreenControl: true,
                 zoomControl: true,
                 gestureHandling: 'auto',
-                // Sarisara map style: clean, video-ready, minimal labels.
-                // Land stays light grey so the upcoming purple→cyan path pops.
-                // Country/province/POI labels hidden so our 70×70 markers own attention.
                 styles: [
-                    { elementType: "geometry", stylers: [{ color: "#f3f3f3" }] },
-                    { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-                    { elementType: "labels.text.fill", stylers: [{ color: "#9aa0a6" }] },
-                    { elementType: "labels.text.stroke", stylers: [{ color: "#f3f3f3" }] },
-
-                    // Kill the giant "Sri Lanka" label and province text — distracting in video
-                    { featureType: "administrative.country", elementType: "labels", stylers: [{ visibility: "off" }] },
-                    { featureType: "administrative.province", elementType: "labels", stylers: [{ visibility: "off" }] },
-                    { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#b8bcc1" }] },
-                    { featureType: "administrative.land_parcel", elementType: "labels", stylers: [{ visibility: "off" }] },
-
-                    // Hide all POI labels — our markers should be the only labels on the map.
-                    // Keep park geometry so Wilpattu/Yala/Sinharaja read as natural context.
-                    { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-                    { featureType: "poi", elementType: "geometry", stylers: [{ color: "#ececec" }] },
-                    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e6ece1" }] },
-                    { featureType: "poi.business", elementType: "geometry", stylers: [{ visibility: "off" }] },
-
-                    // Roads: minimal — keep highway geometry for context, hide all road labels.
-                    { featureType: "road", elementType: "labels", stylers: [{ visibility: "off" }] },
-                    { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-                    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#e8e8e8" }] },
-                    { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#f0f0f0" }] },
-                    { featureType: "road.local", elementType: "geometry.stroke", stylers: [{ visibility: "off" }] },
-
-                    // Transit: hidden, irrelevant for a tour map
-                    { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
-                    { featureType: "transit.line", elementType: "geometry", stylers: [{ visibility: "off" }] },
-                    { featureType: "transit.station", elementType: "geometry", stylers: [{ visibility: "off" }] },
-
-                    // Water: cool soft tone that pairs with the #7700FF → #00FAFF gradient path
-                    { featureType: "water", elementType: "geometry", stylers: [{ color: "#dee9f0" }] },
-                    { featureType: "water", elementType: "labels", stylers: [{ visibility: "off" }] }
+                    {
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#f5f5f5"}]
+                    },
+                    {
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#616161"}]
+                    },
+                    {
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#f5f5f5"}]
+                    },
+                    {
+                        "featureType": "administrative.land_parcel",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#bdbdbd"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#eeeeee"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#757575"}]
+                    },
+                    {
+                        "featureType": "poi.park",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#e5e5e5"}]
+                    },
+                    {
+                        "featureType": "poi.park",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#9e9e9e"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "road.arterial",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#757575"}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#dadada"}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#616161"}]
+                    },
+                    {
+                        "featureType": "road.local",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#9e9e9e"}]
+                    },
+                    {
+                        "featureType": "transit.line",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#e5e5e5"}]
+                    },
+                    {
+                        "featureType": "transit.station",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#eeeeee"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#c9c9c9"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#9e9e9e"}]
+                    }
                 ]
             });
 
@@ -1170,106 +1019,7 @@
                 }
             });
 
-            // ---- Phase 1A: Sidebar collapse toggle ----
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const inputSection = document.getElementById('inputSection');
-            sidebarToggle.addEventListener('click', function () {
-                const collapsed = inputSection.classList.toggle('collapsed');
-                sidebarToggle.textContent = collapsed ? '»' : '«';
-                sidebarToggle.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
-
-                // Wait for the CSS transition to finish, then tell Maps the canvas resized
-                // and refit so all stops stay in the visible viewport.
-                setTimeout(function () {
-                    if (typeof google !== 'undefined' && map) {
-                        google.maps.event.trigger(map, 'resize');
-                        fitMapToLocations({ animate: true });
-                    }
-                }, 300);
-            });
-
-            // ---- Phase 1A: Aspect ratio frame presets (for video framing) ----
-            const aspectButtons = document.querySelectorAll('.aspect-btn');
-            aspectButtons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const ratio = btn.getAttribute('data-ratio');
-                    aspectButtons.forEach(function (b) { b.classList.remove('active'); });
-                    btn.classList.add('active');
-                    setMapAspectRatio(ratio);
-                });
-            });
-
-            // ---- Phase 1C: Refit on window resize so the route always stays in frame ----
-            let resizeRefitTimer;
-            window.addEventListener('resize', function () {
-                clearTimeout(resizeRefitTimer);
-                resizeRefitTimer = setTimeout(function () {
-                    if (typeof google !== 'undefined' && map) {
-                        google.maps.event.trigger(map, 'resize');
-                        fitMapToLocations({ animate: false });
-                    }
-                }, 150);
-            });
-
             console.log('All event listeners set up');
-        }
-
-        // ---- Phase 1A/1C helpers ----
-
-        // Apply an aspect-ratio frame to the map viewport. Triggers a map resize
-        // event and refits the camera so all stops remain visible inside the
-        // new (often smaller) frame.
-        function setMapAspectRatio(ratio) {
-            const viewport = document.getElementById('mapViewport');
-            if (!viewport) return;
-            viewport.setAttribute('data-ratio', ratio);
-
-            // Wait for the aspect-ratio CSS to settle, then resize + refit
-            setTimeout(function () {
-                if (typeof google !== 'undefined' && map) {
-                    google.maps.event.trigger(map, 'resize');
-                    fitMapToLocations({ animate: true });
-                }
-            }, 60);
-        }
-
-        // Fit the camera so every stop is visible with sensible padding.
-        // Respects the zoom-lock toggle (skips when locked).
-        // For 0 stops: center on Sri Lanka at default zoom.
-        // For 1 stop:  center on it at zoom ~10.
-        // For 2+:      LatLngBounds extended by all stops, fit with padding.
-        function fitMapToLocations(opts) {
-            opts = opts || {};
-            if (!map || isZoomLocked) return;
-
-            if (locations.length === 0) {
-                map.setCenter(SRI_LANKA_CENTER);
-                map.setZoom(8.6);
-                return;
-            }
-
-            if (locations.length === 1) {
-                map.setCenter({ lat: locations[0].lat, lng: locations[0].lng });
-                map.setZoom(10);
-                return;
-            }
-
-            const bounds = new google.maps.LatLngBounds();
-            locations.forEach(function (loc) {
-                bounds.extend({ lat: loc.lat, lng: loc.lng });
-            });
-
-            // Padding leaves room for the future 70x70 marker cards (Phase 1B)
-            // sitting above each pin, plus a margin around the route. Top is
-            // larger to accommodate the cards which render upward from the pin.
-            const padding = { top: 90, right: 60, bottom: 60, left: 60 };
-
-            if (opts.animate === false) {
-                map.fitBounds(bounds, padding);
-            } else {
-                // panToBounds gives the smooth eased camera motion
-                map.fitBounds(bounds, padding);
-            }
         }
 
         // Toggle zoom lock
@@ -1478,9 +1228,7 @@
             markers.push(marker);
             updateLocationsList();
             drawRoute();
-
-            // Phase 1C: Refit so every stop stays visible. Skipped if zoom-locked.
-            fitMapToLocations({ animate: true });
+            // Do not auto-pan - keep map at user's chosen zoom/position
         }
 
         function updateLocationsList() {
@@ -1540,9 +1288,6 @@
 
             updateLocationsList();
             drawRoute();
-
-            // Phase 1C: Refit remaining stops into view
-            fitMapToLocations({ animate: true });
         }
 
         function clearAll() {
@@ -1558,9 +1303,9 @@
                 legDistances = [];
                 updateLocationsList();
                 updateDistanceDisplay();
-
-                // Phase 1C: Reset back to the default Sri Lanka view
-                fitMapToLocations({ animate: true });
+                // Keep the current map position and zoom level
+                // map.setCenter(SRI_LANKA_CENTER);
+                // User maintains their chosen zoom level
             }
         }
 
@@ -1590,11 +1335,12 @@
                     markers.forEach(marker => marker.setMap(null));
                     markers = [];
 
-                    // Phase 1C: Always preserve viewport — fitMapToLocations handles
-                    // the camera with proper sidebar/aspect-aware padding. This stops
-                    // DirectionsRenderer from fitting on its own (without our padding)
-                    // and fighting our explicit fit.
-                    directionsRenderer.setOptions({ preserveViewport: true });
+                    // If zoom is locked, preserve the current viewport
+                    if (isZoomLocked) {
+                        directionsRenderer.setOptions({ preserveViewport: true });
+                    } else {
+                        directionsRenderer.setOptions({ preserveViewport: false });
+                    }
 
                     directionsRenderer.setDirections(result);
 
@@ -1736,7 +1482,6 @@
 
                     updateLocationsList();
                     drawRoute();
-                    fitMapToLocations({ animate: true });
                 }
             });
         }
@@ -1762,7 +1507,6 @@
             // Update list and redraw route
             updateLocationsList();
             drawRoute();
-            fitMapToLocations({ animate: true });
         }
     </script>
 
