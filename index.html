@@ -733,6 +733,131 @@
             .style-picker { grid-template-columns: 1fr 1fr; }
         }
 
+        /* ===== Antique / Carte du Monde decorations ===== */
+        /* All layered ON TOP of the sepia-tinted map. Each piece only renders
+           when .map-section has .style-antique. Switching to another preset
+           hides them automatically because the class is removed. */
+
+        .antique-decoration {
+            position: absolute;
+            pointer-events: none;
+            display: none;
+            z-index: 6;
+        }
+
+        .map-section.style-antique #map {
+            /* Pushes Watercolor tiles into "old paper" territory */
+            filter: sepia(0.78) saturate(1.45) hue-rotate(-12deg) brightness(0.94) contrast(1.12);
+        }
+
+        .map-section.style-antique {
+            /* Letterbox area becomes parchment instead of grey */
+            background-color: #d9c79a;
+        }
+
+        .map-section.style-antique .antique-decoration {
+            display: block;
+        }
+
+        /* Parchment grain + stains (CSS-only, no images) */
+        .parchment-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: none;
+            z-index: 4;
+            background:
+                radial-gradient(ellipse at 18% 22%, rgba(95, 55, 20, 0.18) 0%, transparent 35%),
+                radial-gradient(ellipse at 82% 16%, rgba(80, 50, 18, 0.14) 0%, transparent 32%),
+                radial-gradient(ellipse at 12% 78%, rgba(120, 75, 30, 0.16) 0%, transparent 38%),
+                radial-gradient(ellipse at 88% 84%, rgba(95, 55, 20, 0.20) 0%, transparent 36%),
+                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 130, 0.10) 0%, transparent 70%),
+                radial-gradient(circle at 30% 60%, rgba(70, 40, 15, 0.10) 0%, transparent 8%),
+                radial-gradient(circle at 70% 40%, rgba(70, 40, 15, 0.08) 0%, transparent 6%);
+            mix-blend-mode: multiply;
+        }
+
+        .map-section.style-antique .parchment-overlay {
+            display: block;
+        }
+
+        /* Outer ornate frame — thin double-line border feel */
+        .antique-frame {
+            position: absolute;
+            inset: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+            border: 2px solid rgba(74, 53, 32, 0.85);
+            box-shadow:
+                inset 0 0 0 4px transparent,
+                inset 0 0 0 5px rgba(74, 53, 32, 0.55);
+        }
+
+        .map-section.style-antique .antique-frame {
+            display: block;
+        }
+
+        /* Corner flourishes — SVG ornaments at all four corners */
+        .antique-corner {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            pointer-events: none;
+            display: none;
+            z-index: 7;
+            color: #4a3520;
+        }
+
+        .antique-corner.tl { top: 10px;    left: 10px; }
+        .antique-corner.tr { top: 10px;    right: 10px;  transform: scaleX(-1); }
+        .antique-corner.bl { bottom: 10px; left: 10px;   transform: scaleY(-1); }
+        .antique-corner.br { bottom: 10px; right: 10px;  transform: scale(-1, -1); }
+
+        .map-section.style-antique .antique-corner { display: block; }
+        .antique-corner svg { width: 100%; height: 100%; }
+
+        /* Compass rose — bottom-right, above watermark */
+        .antique-compass {
+            position: absolute;
+            bottom: 100px;
+            right: 26px;
+            width: 95px;
+            height: 95px;
+            display: none;
+            pointer-events: none;
+            z-index: 7;
+            opacity: 0.85;
+        }
+
+        .map-section.style-antique .antique-compass { display: block; }
+        .antique-compass svg { width: 100%; height: 100%; }
+
+        /* Decorative sailing ships — placed in ocean areas */
+        .antique-ship {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            display: none;
+            pointer-events: none;
+            z-index: 7;
+            opacity: 0.78;
+            color: #4a3520;
+        }
+
+        .antique-ship.ship-east { top: 38%;  right: 6%; }
+        .antique-ship.ship-west { top: 22%;  left: 5%;  transform: scaleX(-1); }
+        .antique-ship.ship-south { bottom: 14%; left: 22%; }
+
+        .map-section.style-antique .antique-ship { display: block; }
+        .antique-ship svg { width: 100%; height: 100%; }
+
+        @media (max-width: 768px) {
+            .antique-corner { width: 50px; height: 50px; }
+            .antique-compass { width: 65px; height: 65px; bottom: 70px; right: 14px; }
+            .antique-ship { width: 44px; height: 44px; }
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -819,6 +944,116 @@
                 Map: <span id="stadiaCredits">Stadia · Stamen · OpenStreetMap</span>
             </div>
 
+            <!-- ===== Antique / Carte du Monde decorations ===== -->
+            <!-- All hidden by default; CSS shows them only when
+                 .map-section.style-antique is active. Decorative only,
+                 pointer-events:none so they never block map interaction. -->
+
+            <div class="parchment-overlay antique-decoration" aria-hidden="true"></div>
+            <div class="antique-frame antique-decoration" aria-hidden="true"></div>
+
+            <!-- Four corner flourishes -->
+            <div class="antique-corner tl antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                    <path d="M 14 14 L 14 50 Q 14 60 24 60"/>
+                    <path d="M 14 14 L 50 14 Q 60 14 60 24"/>
+                    <circle cx="14" cy="14" r="3.5" fill="currentColor"/>
+                    <path d="M 22 22 Q 32 22 32 32 Q 32 42 42 42" fill="none"/>
+                    <circle cx="32" cy="32" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="antique-corner tr antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                    <path d="M 14 14 L 14 50 Q 14 60 24 60"/>
+                    <path d="M 14 14 L 50 14 Q 60 14 60 24"/>
+                    <circle cx="14" cy="14" r="3.5" fill="currentColor"/>
+                    <path d="M 22 22 Q 32 22 32 32 Q 32 42 42 42" fill="none"/>
+                    <circle cx="32" cy="32" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="antique-corner bl antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                    <path d="M 14 14 L 14 50 Q 14 60 24 60"/>
+                    <path d="M 14 14 L 50 14 Q 60 14 60 24"/>
+                    <circle cx="14" cy="14" r="3.5" fill="currentColor"/>
+                    <path d="M 22 22 Q 32 22 32 32 Q 32 42 42 42" fill="none"/>
+                    <circle cx="32" cy="32" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="antique-corner br antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                    <path d="M 14 14 L 14 50 Q 14 60 24 60"/>
+                    <path d="M 14 14 L 50 14 Q 60 14 60 24"/>
+                    <circle cx="14" cy="14" r="3.5" fill="currentColor"/>
+                    <path d="M 22 22 Q 32 22 32 32 Q 32 42 42 42" fill="none"/>
+                    <circle cx="32" cy="32" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+
+            <!-- Compass rose -->
+            <div class="antique-compass antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background disc -->
+                    <circle cx="50" cy="50" r="46" fill="rgba(245, 233, 200, 0.55)" stroke="#4a3520" stroke-width="1.4"/>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#4a3520" stroke-width="0.8" stroke-dasharray="2,2"/>
+                    <!-- 4 main directions: tall darker triangles -->
+                    <polygon points="50,7 54,50 50,52 46,50" fill="#3a2810"/>
+                    <polygon points="50,93 54,50 50,48 46,50" fill="#7a5a32"/>
+                    <polygon points="93,50 50,54 48,50 50,46" fill="#3a2810"/>
+                    <polygon points="7,50 50,54 52,50 50,46" fill="#7a5a32"/>
+                    <!-- 4 secondary directions -->
+                    <polygon points="78,22 53,49 50,50 49,47" fill="#3a2810" opacity="0.55"/>
+                    <polygon points="78,78 53,51 50,50 51,53" fill="#7a5a32" opacity="0.55"/>
+                    <polygon points="22,78 47,51 50,50 51,47" fill="#3a2810" opacity="0.55"/>
+                    <polygon points="22,22 47,49 50,50 49,53" fill="#7a5a32" opacity="0.55"/>
+                    <!-- Center hub -->
+                    <circle cx="50" cy="50" r="3" fill="#3a2810"/>
+                    <!-- N label -->
+                    <text x="50" y="20" text-anchor="middle" font-size="9" fill="#3a2810" font-family="Georgia, serif" font-weight="700">N</text>
+                    <text x="50" y="86" text-anchor="middle" font-size="8" fill="#3a2810" font-family="Georgia, serif" opacity="0.7">S</text>
+                    <text x="84" y="53" text-anchor="middle" font-size="8" fill="#3a2810" font-family="Georgia, serif" opacity="0.7">E</text>
+                    <text x="16" y="53" text-anchor="middle" font-size="8" fill="#3a2810" font-family="Georgia, serif" opacity="0.7">W</text>
+                </svg>
+            </div>
+
+            <!-- Decorative sailing ships -->
+            <div class="antique-ship ship-east antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+                    <!-- Sea waves under hull -->
+                    <path d="M 4 50 Q 12 47 20 50 T 36 50 T 56 50" stroke-width="0.8" opacity="0.6"/>
+                    <!-- Hull -->
+                    <path d="M 8 42 L 52 42 L 48 50 L 12 50 Z" fill="#7a5a32" stroke="#3a2810"/>
+                    <!-- Mast -->
+                    <line x1="30" y1="42" x2="30" y2="8" stroke="#3a2810" stroke-width="1.4"/>
+                    <!-- Front sail -->
+                    <path d="M 30 11 L 17 38 L 30 38 Z" fill="rgba(245, 233, 200, 0.85)" stroke="#3a2810" stroke-width="0.9"/>
+                    <!-- Back sail -->
+                    <path d="M 30 11 L 43 38 L 30 38 Z" fill="rgba(245, 233, 200, 0.7)" stroke="#3a2810" stroke-width="0.9"/>
+                    <!-- Pennant -->
+                    <path d="M 30 8 L 36 10 L 30 12 Z" fill="#3a2810"/>
+                </svg>
+            </div>
+            <div class="antique-ship ship-west antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+                    <path d="M 4 50 Q 12 47 20 50 T 36 50 T 56 50" stroke-width="0.8" opacity="0.6"/>
+                    <path d="M 8 42 L 52 42 L 48 50 L 12 50 Z" fill="#7a5a32" stroke="#3a2810"/>
+                    <line x1="30" y1="42" x2="30" y2="8" stroke="#3a2810" stroke-width="1.4"/>
+                    <path d="M 30 11 L 17 38 L 30 38 Z" fill="rgba(245, 233, 200, 0.85)" stroke="#3a2810" stroke-width="0.9"/>
+                    <path d="M 30 11 L 43 38 L 30 38 Z" fill="rgba(245, 233, 200, 0.7)" stroke="#3a2810" stroke-width="0.9"/>
+                    <path d="M 30 8 L 36 10 L 30 12 Z" fill="#3a2810"/>
+                </svg>
+            </div>
+            <div class="antique-ship ship-south antique-decoration" aria-hidden="true">
+                <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+                    <path d="M 4 50 Q 12 47 20 50 T 36 50 T 56 50" stroke-width="0.8" opacity="0.6"/>
+                    <path d="M 8 42 L 52 42 L 48 50 L 12 50 Z" fill="#7a5a32" stroke="#3a2810"/>
+                    <line x1="30" y1="42" x2="30" y2="8" stroke="#3a2810" stroke-width="1.4"/>
+                    <path d="M 30 11 L 17 38 L 30 38 Z" fill="rgba(245, 233, 200, 0.85)" stroke="#3a2810" stroke-width="0.9"/>
+                    <path d="M 30 11 L 43 38 L 30 38 Z" fill="rgba(245, 233, 200, 0.7)" stroke="#3a2810" stroke-width="0.9"/>
+                    <path d="M 30 8 L 36 10 L 30 12 Z" fill="#3a2810"/>
+                </svg>
+            </div>
+
             <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
             <div class="fullscreen-panel" id="fullscreenPanel">
                 <h2>Add Destination</h2>
@@ -903,7 +1138,10 @@
                         <span class="style-name">Vintage Watercolor</span>
                     </button>
                     <button class="style-card" data-style="antique">
-                        <div class="style-thumb" style="background: linear-gradient(135deg,#ece2ce 0%,#caa974 100%);"></div>
+                        <div class="style-thumb" style="background:
+                            radial-gradient(circle at 30% 40%, rgba(95,55,20,0.28) 0%, transparent 35%),
+                            radial-gradient(circle at 70% 70%, rgba(120,75,30,0.22) 0%, transparent 35%),
+                            linear-gradient(135deg,#e8d4a3 0%,#c9a674 60%,#a17a3f 100%);"></div>
                         <span class="style-name">Antique<br>Carte du Monde</span>
                     </button>
                     <button class="style-card" data-style="rich-culture">
@@ -1044,9 +1282,12 @@
             'antique': {
                 name: 'Antique / Carte du Monde',
                 type: 'stadia',
-                tileUrl: 'https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png',
-                tileExt: 'png',
-                pathColors: ['#3a2614', '#8b6f1a'],  // dark brown ink → muted gold
+                // Watercolor base (artistic, painterly) → pushed into parchment territory
+                // by the sepia CSS filter + parchment overlay applied via `cssClass`.
+                tileUrl: 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
+                tileExt: 'jpg',
+                cssClass: 'style-antique',          // toggles parchment filter, corner flourishes, compass, ships
+                pathColors: ['#3a2614', '#8b6f1a'], // dark brown ink → muted gold (after filter reads as aged ink)
                 attribution: 'Map tiles by <a href="https://stamen.com" target="_blank" rel="noopener">Stamen Design</a> · <a href="https://stadiamaps.com" target="_blank" rel="noopener">Stadia Maps</a> · Data <a href="https://openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>'
             },
             'rich-culture': {
@@ -1115,6 +1356,14 @@
                 if (idx >= 0) map.overlayMapTypes.removeAt(idx);
                 currentStadiaOverlay = null;
             }
+
+            // Reset any per-style decorative classes on the map section, then
+            // apply the new one (if the preset declares one). This is how the
+            // Antique style turns on its parchment filter + corner flourishes
+            // + compass + ships — purely via CSS scoping.
+            const mapSection = document.getElementById('mapSection');
+            mapSection.className = mapSection.className.replace(/\bstyle-[\w-]+/g, '').trim();
+            if (style.cssClass) mapSection.classList.add(style.cssClass);
 
             if (style.type === 'stadia') {
                 // Hide Google's base map so only Stadia tiles render
