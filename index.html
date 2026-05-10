@@ -828,29 +828,12 @@
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer({
                 map: map,
-                suppressMarkers: true,  // Suppress default markers, we'll use our custom black pins
-                polylineOptions: {
-                    strokeColor: '#FFB700',
-                    strokeWeight: 3,
-                    strokeOpacity: 0.8,
-                    icons: [{
-                        icon: {
-                            path: google.maps.SymbolPath.CIRCLE,
-                            fillColor: '#FFB700',
-                            fillOpacity: 1,
-                            strokeColor: '#000000',
-                            strokeWeight: 1.5,
-                            scale: 4
-                        },
-                        offset: '0',
-                        repeat: '30px'
-                    }]
-                }
+                suppressMarkers: true,    // We use our own custom black numbered pins
+                suppressPolylines: true   // We render a custom gradient path (purple → cyan) below
             });
             geocoder = new google.maps.Geocoder();
 
-            // Start route animation
-            startRouteAnimation();
+            // (Gradient path is rendered from drawRoute() once we have 2+ stops)
 
             // Set up autocomplete
             const input = document.getElementById('locationInput');
@@ -1299,6 +1282,7 @@
                 markers = [];
                 directionsRenderer.setMap(null);
                 directionsRenderer.setMap(map);
+                clearGradientPath();   // Tear down gradient line + animation
                 totalDistanceKm = 0;
                 legDistances = [];
                 updateLocationsList();
@@ -1312,6 +1296,7 @@
         function drawRoute() {
             if (locations.length < 2) {
                 directionsRenderer.setDirections({ routes: [] });
+                clearGradientPath();   // No route to animate when < 2 stops
                 totalDistanceKm = 0;
                 legDistances = [];
                 updateDistanceDisplay();
@@ -1347,8 +1332,8 @@
                     // Calculate distances
                     calculateDistances(result);
 
-                    // Restart animation for the new route
-                    startRouteAnimation();
+                    // Render the new animated gradient path along the route's actual road geometry
+                    renderGradientPath(result.routes[0].overview_path);
 
                     locations.forEach((location, index) => {
                         const marker = new google.maps.Marker({
@@ -1408,43 +1393,96 @@
             }
         }
 
-        // Animate route lines with flowing energy effect
-        function startRouteAnimation() {
-            let offset = 0;
+        // ===================================================================
+        // Gradient path renderer
+        // -------------------------------------------------------------------
+        // Replaces the old single-yellow-polyline-with-black-circles look.
+        // The route is split into many short polyline segments along the
+        // actual road geometry (DirectionsResult.overview_path). Each segment
+        // is recoloured every animation frame from a phase-shifted gradient
+        // between PATH_COLOR_A (#7700FF, ultraviolet) and PATH_COLOR_B
+        // (#00FAFF, electric cyan). The phase advances each frame so the
+        // colours appear to flow from start to end of the route. Triangle
+        // wave so the gradient ping-pongs smoothly without a colour seam.
+        // ===================================================================
 
-            if (animationInterval) {
-                clearInterval(animationInterval);
+        const PATH_COLOR_A = '#7700FF';   // ultraviolet (start of gradient)
+        const PATH_COLOR_B = '#00FAFF';   // electric cyan (end of gradient)
+        const PATH_WEIGHT = 4;            // line thickness in px
+        const PATH_FLOW_SPEED = 0.0035;   // how fast the gradient flows (per frame)
+
+        let gradientPolylines = [];       // active per-segment polyline objects
+        let gradientPhase = 0;            // animation phase, 0..1
+        let gradientRaf = null;           // requestAnimationFrame handle
+
+        // Linear interpolation between two #rrggbb colours.
+        function lerpHexColor(colorA, colorB, t) {
+            const ar = parseInt(colorA.slice(1, 3), 16),
+                  ag = parseInt(colorA.slice(3, 5), 16),
+                  ab = parseInt(colorA.slice(5, 7), 16);
+            const br = parseInt(colorB.slice(1, 3), 16),
+                  bg = parseInt(colorB.slice(3, 5), 16),
+                  bb = parseInt(colorB.slice(5, 7), 16);
+            const r = Math.round(ar + (br - ar) * t);
+            const g = Math.round(ag + (bg - ag) * t);
+            const b = Math.round(ab + (bb - ab) * t);
+            return '#' +
+                r.toString(16).padStart(2, '0') +
+                g.toString(16).padStart(2, '0') +
+                b.toString(16).padStart(2, '0');
+        }
+
+        // Tear down all gradient polylines and stop the animation loop.
+        function clearGradientPath() {
+            gradientPolylines.forEach(function (p) { p.setMap(null); });
+            gradientPolylines = [];
+            if (gradientRaf) {
+                cancelAnimationFrame(gradientRaf);
+                gradientRaf = null;
+            }
+        }
+
+        // Render the animated gradient path along the given LatLng[] geometry.
+        // Called from drawRoute() with result.routes[0].overview_path.
+        function renderGradientPath(path) {
+            clearGradientPath();
+            if (!path || path.length < 2) return;
+
+            // Build one short polyline per consecutive pair of points.
+            // overview_path typically gives 50–200 points along the actual
+            // road geometry — plenty of resolution for a smooth gradient.
+            for (let i = 0; i < path.length - 1; i++) {
+                const seg = new google.maps.Polyline({
+                    path: [path[i], path[i + 1]],
+                    strokeColor: PATH_COLOR_A, // overridden each frame in tick()
+                    strokeOpacity: 1,
+                    strokeWeight: PATH_WEIGHT,
+                    map: map,
+                    zIndex: 5,
+                    geodesic: true
+                });
+                gradientPolylines.push(seg);
             }
 
-            animationInterval = setInterval(function() {
-                offset = (offset + 3) % 30;
-
-                // Check if there's a route to animate
-                const directions = directionsRenderer.getDirections();
-
-                if (directions && directions.routes && directions.routes.length > 0) {
-                    const polylineOptions = {
-                        strokeColor: '#FFB700',
-                        strokeWeight: 3,
-                        strokeOpacity: 0.8,
-                        icons: [{
-                            icon: {
-                                path: google.maps.SymbolPath.CIRCLE,
-                                fillColor: '#FFB700',
-                                fillOpacity: 1,
-                                strokeColor: '#000000',
-                                strokeWeight: 1.5,
-                                scale: 4
-                            },
-                            offset: offset + 'px',
-                            repeat: '30px'
-                        }]
-                    };
-
-                    directionsRenderer.setOptions({ polylineOptions: polylineOptions });
+            function tick() {
+                gradientPhase = (gradientPhase + PATH_FLOW_SPEED) % 1;
+                const n = gradientPolylines.length;
+                for (let i = 0; i < n; i++) {
+                    // Position of this segment in the flowing gradient.
+                    // Triangle wave (0→1→0) avoids the hard colour seam you'd
+                    // otherwise see at the wrap-around.
+                    const raw = (i / n + gradientPhase) % 1;
+                    const t = raw < 0.5 ? raw * 2 : (1 - raw) * 2;
+                    const color = lerpHexColor(PATH_COLOR_A, PATH_COLOR_B, t);
+                    gradientPolylines[i].setOptions({ strokeColor: color });
                 }
-            }, 60); // Update every 60ms for smooth flowing animation
+                gradientRaf = requestAnimationFrame(tick);
+            }
+            tick();
         }
+
+        // Kept as a no-op so any legacy call sites still resolve safely.
+        function startRouteAnimation() { /* replaced by renderGradientPath() */ }
 
         function optimizeRoute() {
             if (locations.length < 3) {
