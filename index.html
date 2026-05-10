@@ -761,8 +761,9 @@
             display: block;
         }
 
-        /* Parchment grain + stains (CSS-only, no images) — gives the map a
-           subtle aged-paper texture sitting on top of the sepia tiles. */
+        /* Coffee-stain texture (CSS-only, no images) — large irregular blobs
+           with darker centers fading out, plus secondary minor splatters.
+           mix-blend-mode: multiply so the underlying sepia map shows through. */
         .parchment-overlay {
             position: absolute;
             inset: 0;
@@ -770,17 +771,43 @@
             display: none;
             z-index: 4;
             background:
-                radial-gradient(ellipse at 18% 22%, rgba(95, 55, 20, 0.10) 0%, transparent 35%),
-                radial-gradient(ellipse at 82% 16%, rgba(80, 50, 18, 0.08) 0%, transparent 32%),
-                radial-gradient(ellipse at 12% 78%, rgba(120, 75, 30, 0.10) 0%, transparent 38%),
-                radial-gradient(ellipse at 88% 84%, rgba(95, 55, 20, 0.12) 0%, transparent 36%),
-                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 130, 0.06) 0%, transparent 70%),
-                radial-gradient(circle at 30% 60%, rgba(70, 40, 15, 0.06) 0%, transparent 8%),
-                radial-gradient(circle at 70% 40%, rgba(70, 40, 15, 0.05) 0%, transparent 6%);
+                /* Major coffee stains — large, dense centers, irregular feathered edges */
+                radial-gradient(ellipse 260px 200px at 16% 18%, rgba(78, 42, 12, 0.32) 0%, rgba(95, 55, 20, 0.16) 25%, rgba(110, 70, 25, 0.06) 50%, transparent 75%),
+                radial-gradient(ellipse 220px 180px at 84% 14%, rgba(82, 45, 14, 0.28) 0%, rgba(95, 55, 20, 0.14) 28%, transparent 65%),
+                radial-gradient(ellipse 280px 220px at 10% 82%, rgba(95, 55, 18, 0.30) 0%, rgba(120, 75, 30, 0.14) 30%, rgba(140, 90, 40, 0.04) 55%, transparent 75%),
+                radial-gradient(ellipse 240px 200px at 90% 86%, rgba(78, 42, 12, 0.34) 0%, rgba(95, 55, 20, 0.16) 28%, transparent 65%),
+                /* Mid-size splatters in the middle */
+                radial-gradient(ellipse 130px 100px at 38% 48%, rgba(85, 48, 16, 0.18) 0%, rgba(100, 60, 22, 0.06) 40%, transparent 70%),
+                radial-gradient(ellipse 110px 90px at 68% 56%, rgba(82, 46, 14, 0.16) 0%, rgba(100, 60, 22, 0.05) 40%, transparent 70%),
+                radial-gradient(ellipse 90px 70px at 50% 28%, rgba(95, 55, 18, 0.14) 0%, transparent 60%),
+                radial-gradient(ellipse 100px 80px at 28% 70%, rgba(85, 48, 14, 0.15) 0%, transparent 65%),
+                /* Tiny dark fleck stains — like real coffee droplets */
+                radial-gradient(circle 18px at 22% 38%, rgba(60, 30, 8, 0.36) 0%, transparent 55%),
+                radial-gradient(circle 14px at 64% 24%, rgba(60, 30, 8, 0.32) 0%, transparent 55%),
+                radial-gradient(circle 12px at 76% 64%, rgba(60, 30, 8, 0.28) 0%, transparent 55%),
+                radial-gradient(circle 16px at 32% 62%, rgba(60, 30, 8, 0.30) 0%, transparent 55%),
+                radial-gradient(circle 10px at 56% 82%, rgba(60, 30, 8, 0.24) 0%, transparent 55%),
+                /* Overall warm paper grain wash */
+                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 130, 0.10) 0%, transparent 80%);
             mix-blend-mode: multiply;
         }
 
         .map-section.style-antique .parchment-overlay {
+            display: block;
+        }
+
+        /* Rhumb lines — sepia direction lines radiating from compass area */
+        .rhumb-lines {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+        }
+
+        .map-section.style-antique .rhumb-lines {
             display: block;
         }
 
@@ -954,6 +981,33 @@
 
             <div class="parchment-overlay antique-decoration" aria-hidden="true"></div>
             <div class="antique-frame antique-decoration" aria-hidden="true"></div>
+
+            <!-- Rhumb lines — 16 thin sepia lines radiating from the compass
+                 position (bottom-right, ~85%/85% of viewport), mimicking the
+                 navigational direction lines on antique maps. -->
+            <svg class="rhumb-lines antique-decoration"
+                 viewBox="0 0 100 100"
+                 preserveAspectRatio="none"
+                 aria-hidden="true">
+                <g stroke="#5a3a14" fill="none" stroke-linecap="round">
+                    <line x1="85" y1="85" x2="85"   y2="0"    stroke-width="0.18" opacity="0.26"/>
+                    <line x1="85" y1="85" x2="100"  y2="48.7" stroke-width="0.14" opacity="0.20"/>
+                    <line x1="85" y1="85" x2="100"  y2="70"   stroke-width="0.14" opacity="0.20"/>
+                    <line x1="85" y1="85" x2="100"  y2="78.8" stroke-width="0.13" opacity="0.18"/>
+                    <line x1="85" y1="85" x2="100"  y2="85"   stroke-width="0.18" opacity="0.26"/>
+                    <line x1="85" y1="85" x2="100"  y2="91.2" stroke-width="0.13" opacity="0.18"/>
+                    <line x1="85" y1="85" x2="100"  y2="100"  stroke-width="0.14" opacity="0.20"/>
+                    <line x1="85" y1="85" x2="91.2" y2="100"  stroke-width="0.13" opacity="0.18"/>
+                    <line x1="85" y1="85" x2="85"   y2="100"  stroke-width="0.18" opacity="0.26"/>
+                    <line x1="85" y1="85" x2="78.8" y2="100"  stroke-width="0.13" opacity="0.18"/>
+                    <line x1="85" y1="85" x2="70"   y2="100"  stroke-width="0.14" opacity="0.20"/>
+                    <line x1="85" y1="85" x2="48.7" y2="100"  stroke-width="0.13" opacity="0.18"/>
+                    <line x1="85" y1="85" x2="0"    y2="85"   stroke-width="0.18" opacity="0.26"/>
+                    <line x1="85" y1="85" x2="0"    y2="49.8" stroke-width="0.13" opacity="0.18"/>
+                    <line x1="85" y1="85" x2="0"    y2="0"    stroke-width="0.14" opacity="0.20"/>
+                    <line x1="85" y1="85" x2="49.8" y2="0"    stroke-width="0.13" opacity="0.18"/>
+                </g>
+            </svg>
 
             <!-- Four corner flourishes -->
             <div class="antique-corner tl antique-decoration" aria-hidden="true">
@@ -1380,6 +1434,101 @@
         let currentStadiaOverlay = null;
         let currentStyleKey = 'default';
 
+        // ===================================================================
+        // Antique-mode scattered illustrations
+        // -------------------------------------------------------------------
+        // Hand-drawn-style SVG icons placed at specific Sri Lanka lat/lng
+        // points. They're real Google Markers, so they ANCHOR to geography:
+        // when you pan or zoom, the mountain icon stays over the actual
+        // mountains. Only visible when the Antique style is selected.
+        // ===================================================================
+
+        const ANTIQUE_DECORATIONS = [
+            // Mountain ranges
+            { lat: 7.45, lng: 80.78, type: 'mountain' },  // Knuckles
+            { lat: 6.81, lng: 80.50, type: 'mountain' },  // Adam's Peak
+            { lat: 6.95, lng: 80.83, type: 'mountain' },  // Hill country / Horton Plains
+            // Forests / national parks
+            { lat: 8.43, lng: 80.07, type: 'forest' },    // Wilpattu
+            { lat: 6.45, lng: 81.45, type: 'forest' },    // Yala
+            { lat: 7.75, lng: 80.95, type: 'forest' },    // Wasgamuwa
+            // Sea creatures (in surrounding ocean)
+            { lat: 7.70, lng: 82.30, type: 'serpent' },   // Indian Ocean east
+            { lat: 6.50, lng: 79.20, type: 'fish' }       // West coast ocean
+        ];
+
+        const ANTIQUE_ICONS = {
+            mountain:
+                '<svg width="48" height="34" viewBox="0 0 48 34" xmlns="http://www.w3.org/2000/svg">' +
+                '<path d="M 2 30 L 9 12 L 16 24 L 20 18 L 24 30 Z M 24 30 L 31 14 L 38 26 L 42 20 L 46 30 Z" ' +
+                'fill="#7a5a36" stroke="#3a2208" stroke-width="0.7" stroke-linejoin="round"/>' +
+                '<path d="M 9 12 L 13 19 M 31 14 L 35 21" stroke="#3a2208" stroke-width="0.5" opacity="0.55"/>' +
+                '</svg>',
+            forest:
+                '<svg width="46" height="32" viewBox="0 0 46 32" xmlns="http://www.w3.org/2000/svg">' +
+                '<line x1="10" y1="30" x2="10" y2="22" stroke="#3a2208" stroke-width="0.7"/>' +
+                '<line x1="22" y1="30" x2="22" y2="18" stroke="#3a2208" stroke-width="0.7"/>' +
+                '<line x1="34" y1="30" x2="34" y2="22" stroke="#3a2208" stroke-width="0.7"/>' +
+                '<circle cx="10" cy="22" r="6" fill="#5a4a26" stroke="#3a2208" stroke-width="0.6" opacity="0.92"/>' +
+                '<circle cx="22" cy="18" r="7.5" fill="#5a4a26" stroke="#3a2208" stroke-width="0.6"/>' +
+                '<circle cx="34" cy="22" r="6" fill="#5a4a26" stroke="#3a2208" stroke-width="0.6" opacity="0.92"/>' +
+                '<circle cx="42" cy="20" r="3.5" fill="#5a4a26" stroke="#3a2208" stroke-width="0.5" opacity="0.85"/>' +
+                '</svg>',
+            serpent:
+                '<svg width="56" height="38" viewBox="0 0 56 38" xmlns="http://www.w3.org/2000/svg">' +
+                '<path d="M 6 22 Q 14 12 22 22 T 38 22 Q 44 22 48 16" ' +
+                'stroke="#5a3a14" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+                '<path d="M 48 16 L 54 12 L 52 22 Z" fill="#5a3a14"/>' +
+                '<circle cx="6" cy="22" r="3" fill="#5a3a14"/>' +
+                '<circle cx="6.5" cy="21" r="0.9" fill="#f0e2bf"/>' +
+                '</svg>',
+            fish:
+                '<svg width="36" height="26" viewBox="0 0 36 26" xmlns="http://www.w3.org/2000/svg">' +
+                '<path d="M 4 13 Q 13 6 24 13 Q 13 20 4 13 Z" fill="#5a3a14" stroke="#3a2208" stroke-width="0.5" opacity="0.92"/>' +
+                '<path d="M 24 13 L 32 7 L 32 19 Z" fill="#5a3a14"/>' +
+                '<circle cx="9" cy="12" r="0.9" fill="#f0e2bf"/>' +
+                '</svg>'
+        };
+
+        const ANTIQUE_ICON_SIZES = {
+            mountain: { w: 48, h: 34 },
+            forest:   { w: 46, h: 32 },
+            serpent:  { w: 56, h: 38 },
+            fish:     { w: 36, h: 26 }
+        };
+
+        let antiqueLandMarkers = [];
+
+        function buildAntiqueDecorations() {
+            if (antiqueLandMarkers.length > 0) return; // already built once
+            ANTIQUE_DECORATIONS.forEach(function (d) {
+                const svg = ANTIQUE_ICONS[d.type];
+                const size = ANTIQUE_ICON_SIZES[d.type];
+                const marker = new google.maps.Marker({
+                    position: { lat: d.lat, lng: d.lng },
+                    map: null, // hidden until antique style is active
+                    icon: {
+                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+                        scaledSize: new google.maps.Size(size.w, size.h),
+                        anchor: new google.maps.Point(size.w / 2, size.h / 2)
+                    },
+                    clickable: false,
+                    optimized: false,
+                    zIndex: 4
+                });
+                antiqueLandMarkers.push(marker);
+            });
+        }
+
+        function showAntiqueDecorations() {
+            buildAntiqueDecorations();
+            antiqueLandMarkers.forEach(function (m) { m.setMap(map); });
+        }
+
+        function hideAntiqueDecorations() {
+            antiqueLandMarkers.forEach(function (m) { m.setMap(null); });
+        }
+
         function applyMapStyle(key) {
             const style = MAP_STYLES[key];
             if (!style || !map) return;
@@ -1398,6 +1547,15 @@
             const mapSection = document.getElementById('mapSection');
             mapSection.className = mapSection.className.replace(/\bstyle-[\w-]+/g, '').trim();
             if (style.cssClass) mapSection.classList.add(style.cssClass);
+
+            // Antique-only scattered illustrations (mountain/forest/serpent/fish
+            // markers anchored to specific Sri Lanka coordinates). Show only
+            // for Antique, hide for everything else.
+            if (style.cssClass === 'style-antique') {
+                showAntiqueDecorations();
+            } else {
+                hideAntiqueDecorations();
+            }
 
             if (style.type === 'stadia') {
                 // Hide Google's base map so only Stadia tiles render
