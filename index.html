@@ -746,8 +746,10 @@
         }
 
         .map-section.style-antique #map {
-            /* Pushes Watercolor tiles into "old paper" territory */
-            filter: sepia(0.78) saturate(1.45) hue-rotate(-12deg) brightness(0.94) contrast(1.12);
+            /* Subtle warmth + softer saturation. Heavy lifting is now done by
+               the Google native sepia style array — this is just a final pass
+               to unify the look with the parchment overlay. */
+            filter: contrast(1.04) saturate(0.92) sepia(0.05);
         }
 
         .map-section.style-antique {
@@ -759,7 +761,8 @@
             display: block;
         }
 
-        /* Parchment grain + stains (CSS-only, no images) */
+        /* Parchment grain + stains (CSS-only, no images) — gives the map a
+           subtle aged-paper texture sitting on top of the sepia tiles. */
         .parchment-overlay {
             position: absolute;
             inset: 0;
@@ -767,13 +770,13 @@
             display: none;
             z-index: 4;
             background:
-                radial-gradient(ellipse at 18% 22%, rgba(95, 55, 20, 0.18) 0%, transparent 35%),
-                radial-gradient(ellipse at 82% 16%, rgba(80, 50, 18, 0.14) 0%, transparent 32%),
-                radial-gradient(ellipse at 12% 78%, rgba(120, 75, 30, 0.16) 0%, transparent 38%),
-                radial-gradient(ellipse at 88% 84%, rgba(95, 55, 20, 0.20) 0%, transparent 36%),
-                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 130, 0.10) 0%, transparent 70%),
-                radial-gradient(circle at 30% 60%, rgba(70, 40, 15, 0.10) 0%, transparent 8%),
-                radial-gradient(circle at 70% 40%, rgba(70, 40, 15, 0.08) 0%, transparent 6%);
+                radial-gradient(ellipse at 18% 22%, rgba(95, 55, 20, 0.10) 0%, transparent 35%),
+                radial-gradient(ellipse at 82% 16%, rgba(80, 50, 18, 0.08) 0%, transparent 32%),
+                radial-gradient(ellipse at 12% 78%, rgba(120, 75, 30, 0.10) 0%, transparent 38%),
+                radial-gradient(ellipse at 88% 84%, rgba(95, 55, 20, 0.12) 0%, transparent 36%),
+                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 130, 0.06) 0%, transparent 70%),
+                radial-gradient(circle at 30% 60%, rgba(70, 40, 15, 0.06) 0%, transparent 8%),
+                radial-gradient(circle at 70% 40%, rgba(70, 40, 15, 0.05) 0%, transparent 6%);
             mix-blend-mode: multiply;
         }
 
@@ -1281,14 +1284,45 @@
             },
             'antique': {
                 name: 'Antique / Carte du Monde',
-                type: 'stadia',
-                // Watercolor base (artistic, painterly) → pushed into parchment territory
-                // by the sepia CSS filter + parchment overlay applied via `cssClass`.
-                tileUrl: 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
-                tileExt: 'jpg',
-                cssClass: 'style-antique',          // toggles parchment filter, corner flourishes, compass, ships
-                pathColors: ['#3a2614', '#8b6f1a'], // dark brown ink → muted gold (after filter reads as aged ink)
-                attribution: 'Map tiles by <a href="https://stamen.com" target="_blank" rel="noopener">Stamen Design</a> · <a href="https://stadiamaps.com" target="_blank" rel="noopener">Stadia Maps</a> · Data <a href="https://openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>'
+                type: 'google',                  // Google native styling — keeps cities, roads, parks, labels VISIBLE
+                cssClass: 'style-antique',       // toggles parchment overlay, frame, corner flourishes, compass, ships
+                styles: [
+                    // Land = cream parchment
+                    { elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
+                    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+                    // All labels in dark sepia ink, with a cream stroke for legibility
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f0e2bf' }, { weight: 3 }] },
+
+                    // Administrative — country labels darker, faint province borders
+                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a2008' }] },
+                    { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#5a3a14' }, { weight: 1.2 }] },
+                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#7a5a3a' }, { weight: 0.5 }] },
+
+                    // Water = warm tan / sepia ocean (matches the reference ocean colour)
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9a974' }] },
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#c9a974' }, { weight: 2 }] },
+
+                    // Roads — light tan to bronze, with darker hairline stroke (reads as ink-drawn lines)
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#d4a974' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#b8884a' }] },
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#3a2008' }] },
+                    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#c9a974' }] },
+
+                    // POIs in slightly darker cream so they sit on the land but don't shout
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#e8d8b0' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    // Parks in a forested-tan (hint of the green-brown shading you'd see in a hand-drawn map)
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#c9b27e' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3a2208' }] },
+
+                    // Transit — irrelevant for an antique tour map, hide
+                    { featureType: 'transit', stylers: [{ visibility: 'off' }] }
+                ],
+                pathColors: ['#5a2810', '#d4a534']  // burgundy ink → bright gold (reads boldly on cream)
             },
             'rich-culture': {
                 name: 'Rich Culture with Nature',
