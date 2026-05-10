@@ -1396,26 +1396,38 @@
         // ===================================================================
         // Gradient path renderer
         // -------------------------------------------------------------------
-        // Replaces the old single-yellow-polyline-with-black-circles look.
-        // The route is split into many short polyline segments along the
-        // actual road geometry (DirectionsResult.overview_path). Each segment
-        // is recoloured every animation frame from a phase-shifted gradient
-        // between PATH_COLOR_A (#7700FF, ultraviolet) and PATH_COLOR_B
-        // (#00FAFF, electric cyan). The phase advances each frame so the
-        // colours appear to flow from start to end of the route. Triangle
-        // wave so the gradient ping-pongs smoothly without a colour seam.
+        // Renders the route between stops as a smoothed, animated gradient.
+        //
+        // Pipeline:
+        //   1. DirectionsService gives us overview_path (~100 points tracing
+        //      every road bend). That's too jagged for a clean visual.
+        //   2. Douglas-Peucker simplification drops points within
+        //      PATH_SIMPLIFY_TOLERANCE degrees of the line through their
+        //      neighbours — kills small zigzags, keeps major direction changes.
+        //   3. Chaikin corner-cutting (PATH_SMOOTH_ITERATIONS passes) rounds
+        //      every remaining corner into a smooth curve.
+        //   4. The resulting smooth path is split into one short polyline per
+        //      consecutive point pair.
+        //   5. Each segment's stroke colour is recomputed every frame from a
+        //      phase-shifted triangle wave between PATH_COLOR_A (#7700FF,
+        //      ultraviolet) and PATH_COLOR_B (#00FAFF, electric cyan).
+        //      Phase advances per frame so the bright cyan "head" travels
+        //      from the FIRST stop toward the LAST stop — direction of travel.
         // ===================================================================
 
-        const PATH_COLOR_A = '#7700FF';   // ultraviolet (start of gradient)
-        const PATH_COLOR_B = '#00FAFF';   // electric cyan (end of gradient)
-        const PATH_WEIGHT = 4;            // line thickness in px
-        const PATH_FLOW_SPEED = 0.0035;   // how fast the gradient flows (per frame)
+        const PATH_COLOR_A             = '#7700FF';   // ultraviolet
+        const PATH_COLOR_B             = '#00FAFF';   // electric cyan
+        const PATH_WEIGHT              = 4;           // line thickness in px
+        const PATH_FLOW_SPEED          = 0.0035;      // gradient flow per frame (higher = faster)
+        const PATH_SIMPLIFY_TOLERANCE  = 0.012;       // degrees — bigger = fewer bends. ~0.012° ≈ 1.3 km in Sri Lanka.
+        const PATH_SMOOTH_ITERATIONS   = 2;           // Chaikin passes — more = silkier curves (3 looks silkier but ~2x more polylines to animate; 2 is a good perf/look balance)
 
         let gradientPolylines = [];       // active per-segment polyline objects
         let gradientPhase = 0;            // animation phase, 0..1
         let gradientRaf = null;           // requestAnimationFrame handle
 
-        // Linear interpolation between two #rrggbb colours.
+        // ---- colour helpers ----
+
         function lerpHexColor(colorA, colorB, t) {
             const ar = parseInt(colorA.slice(1, 3), 16),
                   ag = parseInt(colorA.slice(3, 5), 16),
@@ -1432,7 +1444,85 @@
                 b.toString(16).padStart(2, '0');
         }
 
-        // Tear down all gradient polylines and stop the animation loop.
+        // ---- geometry helpers ----
+
+        // Linear interpolation between two LatLng points at fraction t (0..1).
+        function lerpLatLng(a, b, t) {
+            return new google.maps.LatLng(
+                a.lat() + (b.lat() - a.lat()) * t,
+                a.lng() + (b.lng() - a.lng()) * t
+            );
+        }
+
+        // Perpendicular distance from `point` to the line segment (a–b),
+        // measured in lat/lng degrees. Good enough at country scale where
+        // we don't need spherical-accurate metres.
+        function perpendicularDistance(point, a, b) {
+            const x = point.lng(), y = point.lat();
+            const x1 = a.lng(),    y1 = a.lat();
+            const x2 = b.lng(),    y2 = b.lat();
+            const dx = x2 - x1, dy = y2 - y1;
+            if (dx === 0 && dy === 0) {
+                return Math.hypot(x - x1, y - y1);
+            }
+            // Project onto the line, clamped to the segment
+            let t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
+            t = Math.max(0, Math.min(1, t));
+            const projX = x1 + t * dx;
+            const projY = y1 + t * dy;
+            return Math.hypot(x - projX, y - projY);
+        }
+
+        // Douglas-Peucker: keep only the points that are farther than
+        // `tolerance` from the line through their endpoints. Removes
+        // small wiggles while preserving the route's overall shape.
+        function douglasPeucker(points, tolerance) {
+            if (points.length < 3) return points.slice();
+
+            let maxDist = 0, maxIdx = 0;
+            const last = points.length - 1;
+            for (let i = 1; i < last; i++) {
+                const d = perpendicularDistance(points[i], points[0], points[last]);
+                if (d > maxDist) { maxDist = d; maxIdx = i; }
+            }
+
+            if (maxDist > tolerance) {
+                const left = douglasPeucker(points.slice(0, maxIdx + 1), tolerance);
+                const right = douglasPeucker(points.slice(maxIdx), tolerance);
+                return left.slice(0, -1).concat(right);
+            }
+            // No interior point is far enough — keep just the endpoints
+            return [points[0], points[last]];
+        }
+
+        // Chaikin's algorithm: each iteration replaces every corner with two
+        // points at 1/4 and 3/4 along the adjacent edges. Original endpoints
+        // are preserved so the line still hits the first and last marker.
+        function chaikinSmooth(points, iterations) {
+            let pts = points.slice();
+            for (let iter = 0; iter < iterations; iter++) {
+                if (pts.length < 3) break;
+                const next = [pts[0]];
+                for (let i = 0; i < pts.length - 1; i++) {
+                    next.push(lerpLatLng(pts[i], pts[i + 1], 0.25));
+                    next.push(lerpLatLng(pts[i], pts[i + 1], 0.75));
+                }
+                next.push(pts[pts.length - 1]);
+                pts = next;
+            }
+            return pts;
+        }
+
+        // Combined: simplify away small wiggles, then round the corners.
+        // Result: a clean ribbon that hints at the road shape without
+        // tracing every twist.
+        function smoothRoutePath(rawPath) {
+            const simplified = douglasPeucker(rawPath, PATH_SIMPLIFY_TOLERANCE);
+            return chaikinSmooth(simplified, PATH_SMOOTH_ITERATIONS);
+        }
+
+        // ---- render + animate ----
+
         function clearGradientPath() {
             gradientPolylines.forEach(function (p) { p.setMap(null); });
             gradientPolylines = [];
@@ -1444,13 +1534,14 @@
 
         // Render the animated gradient path along the given LatLng[] geometry.
         // Called from drawRoute() with result.routes[0].overview_path.
-        function renderGradientPath(path) {
+        function renderGradientPath(rawPath) {
             clearGradientPath();
-            if (!path || path.length < 2) return;
+            if (!rawPath || rawPath.length < 2) return;
 
-            // Build one short polyline per consecutive pair of points.
-            // overview_path typically gives 50–200 points along the actual
-            // road geometry — plenty of resolution for a smooth gradient.
+            // Smooth the raw road geometry into a clean ribbon
+            const path = smoothRoutePath(rawPath);
+            if (path.length < 2) return;
+
             for (let i = 0; i < path.length - 1; i++) {
                 const seg = new google.maps.Polyline({
                     path: [path[i], path[i + 1]],
@@ -1468,10 +1559,12 @@
                 gradientPhase = (gradientPhase + PATH_FLOW_SPEED) % 1;
                 const n = gradientPolylines.length;
                 for (let i = 0; i < n; i++) {
-                    // Position of this segment in the flowing gradient.
-                    // Triangle wave (0→1→0) avoids the hard colour seam you'd
-                    // otherwise see at the wrap-around.
-                    const raw = (i / n + gradientPhase) % 1;
+                    // Subtract phase (instead of add) so the bright cyan "head"
+                    // travels FORWARD along the path: first stop → last stop,
+                    // matching the direction of travel.
+                    // Triangle wave (0→1→0) keeps the gradient cycling smoothly
+                    // without a hard colour seam at the wrap-around.
+                    const raw = ((i / n - gradientPhase) % 1 + 1) % 1;
                     const t = raw < 0.5 ? raw * 2 : (1 - raw) * 2;
                     const color = lerpHexColor(PATH_COLOR_A, PATH_COLOR_B, t);
                     gradientPolylines[i].setOptions({ strokeColor: color });
