@@ -505,6 +505,234 @@
             background: #333333;
         }
 
+        /* ===== Settings gear + slide-out Settings panel ===== */
+        .settings-gear {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #d0d0d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            text-transform: none;
+            letter-spacing: 0;
+            transition: all 0.2s ease;
+        }
+
+        .settings-gear:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+            transform: rotate(45deg);
+        }
+
+        .settings-gear svg {
+            display: block;
+        }
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.18);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.28s ease;
+            z-index: 999;
+        }
+
+        .settings-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 380px;
+            max-width: 92vw;
+            background: #ffffff;
+            border-left: 1px solid #e0e0e0;
+            box-shadow: -8px 0 32px rgba(0,0,0,0.16);
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(.2, .8, .2, 1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .settings-panel.open { transform: translateX(0); }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid #e8e8e8;
+            flex-shrink: 0;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .settings-close {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            padding: 0;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #d0d0d0;
+            font-size: 22px;
+            line-height: 1;
+            letter-spacing: 0;
+            text-transform: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-close:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .settings-body {
+            overflow-y: auto;
+            padding: 18px 22px;
+            flex: 1;
+        }
+
+        .settings-section { margin-bottom: 26px; }
+        .settings-section:last-child { margin-bottom: 0; }
+
+        .settings-section h3 {
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #888;
+        }
+
+        /* Style picker */
+        .style-picker {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .style-card {
+            padding: 0;
+            background: #ffffff;
+            border: 1px solid #d8d8d8;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.18s ease;
+        }
+
+        .style-card:hover {
+            border-color: #000000;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .style-card[data-active="true"] {
+            border-color: #000000;
+            border-width: 2px;
+            box-shadow: 0 0 0 1px #000000 inset;
+        }
+
+        .style-thumb {
+            width: 100%;
+            height: 54px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .style-name {
+            padding: 8px 8px 9px;
+            font-size: 11.5px;
+            color: #000000;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* Settings-panel zoom control overrides (compact for sidebar context) */
+        .settings-panel .zoom-control {
+            background: #f8f8f8;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .settings-panel .zoom-control h3 {
+            color: #888;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        /* Stadia attribution overlay (required by their TOS when their tiles are active) */
+        .stadia-attribution {
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            font-size: 10px;
+            color: #333;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 3px 7px;
+            border-radius: 3px;
+            z-index: 5;
+            pointer-events: auto;
+            display: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .stadia-attribution.show { display: block; }
+
+        .stadia-attribution a {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .settings-panel { width: 92vw; }
+            .settings-gear {
+                top: 8px;
+                right: 8px;
+                width: 40px;
+                height: 40px;
+            }
+            .style-picker { grid-template-columns: 1fr 1fr; }
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -551,33 +779,7 @@
                     <button id="addLocationBtn">Add Location</button>
                 </div>
 
-                <!-- Zoom Control Section -->
-                <div class="zoom-control">
-                    <h3>Map Zoom Level</h3>
-                    <div class="zoom-input-group">
-                        <label for="zoomInput">Enter Zoom Level (0-15):</label>
-                        <div class="zoom-input-wrapper">
-                            <button class="zoom-btn" id="zoomDecrement">-</button>
-                            <input
-                                type="number"
-                                id="zoomInput"
-                                min="0"
-                                max="15"
-                                step="0.1"
-                                value="8.6"
-                                placeholder="Enter zoom (e.g., 7.25)"
-                            >
-                            <button class="zoom-btn" id="zoomIncrement">+</button>
-                        </div>
-                        <button class="zoom-lock-btn" id="zoomLockBtn">
-                            <span id="lockIcon">🔓</span>
-                            <span id="lockText">Lock Zoom & Pan</span>
-                        </button>
-                        <div class="zoom-info">
-                            <small>Range: 0 (Very Far) to 15 (Very Close)</small>
-                        </div>
-                    </div>
-                </div>
+                <!-- Map Zoom Level moved to Settings panel (gear icon, top-right of map) -->
 
                 <!-- Distance Display -->
                 <div class="distance-info" id="distanceInfo" style="display: none;">
@@ -604,6 +806,18 @@
         <!-- Map Section (Right 60%) -->
         <div class="map-section" id="mapSection">
             <div id="map"></div>
+
+            <!-- Settings gear (top-right of map) -->
+            <button class="settings-gear" id="settingsGear" aria-label="Open settings" title="Settings">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                    <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                </svg>
+            </button>
+
+            <!-- Stadia attribution (shown only when Stadia tiles are active) -->
+            <div class="stadia-attribution" id="stadiaAttribution" aria-hidden="true">
+                Map: <span id="stadiaCredits">Stadia · Stamen · OpenStreetMap</span>
+            </div>
 
             <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
             <div class="fullscreen-panel" id="fullscreenPanel">
@@ -665,6 +879,67 @@
         </div>
     </div>
 
+    <!-- Settings overlay + slide-out panel -->
+    <div class="settings-overlay" id="settingsOverlay" aria-hidden="true"></div>
+    <aside class="settings-panel" id="settingsPanel" aria-hidden="true">
+        <header class="settings-header">
+            <h2>Settings</h2>
+            <button class="settings-close" id="settingsClose" aria-label="Close settings">×</button>
+        </header>
+        <div class="settings-body">
+            <section class="settings-section">
+                <h3>Map Style</h3>
+                <div class="style-picker" id="stylePicker">
+                    <button class="style-card" data-style="default" data-active="true">
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#f4f4f4 0%,#e0e0e0 100%);"></div>
+                        <span class="style-name">Default Light</span>
+                    </button>
+                    <button class="style-card" data-style="dark">
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#1a1a1a 0%,#2c2c2c 100%);"></div>
+                        <span class="style-name">Dark Mode</span>
+                    </button>
+                    <button class="style-card" data-style="watercolor">
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#d6c5a8 0%,#94b0c2 60%,#c8b294 100%);"></div>
+                        <span class="style-name">Vintage Watercolor</span>
+                    </button>
+                    <button class="style-card" data-style="antique">
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#ece2ce 0%,#caa974 100%);"></div>
+                        <span class="style-name">Antique<br>Carte du Monde</span>
+                    </button>
+                    <button class="style-card" data-style="rich-culture">
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#f4ede0 0%,#5a7c4f 70%,#c9a961 100%);"></div>
+                        <span class="style-name">Rich Culture<br>with Nature</span>
+                    </button>
+                    <button class="style-card" data-style="sarisara">
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#f5efe6 0%,#c9a961 100%);"></div>
+                        <span class="style-name">Sarisara Branded</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h3>Map Zoom Level</h3>
+                <div class="zoom-control">
+                    <div class="zoom-input-group">
+                        <label for="zoomInput">Enter Zoom Level (0–15):</label>
+                        <div class="zoom-input-wrapper">
+                            <button class="zoom-btn" id="zoomDecrement">-</button>
+                            <input type="number" id="zoomInput" min="0" max="15" step="0.1" value="8.6" placeholder="Enter zoom (e.g., 7.25)">
+                            <button class="zoom-btn" id="zoomIncrement">+</button>
+                        </div>
+                        <button class="zoom-lock-btn" id="zoomLockBtn">
+                            <span id="lockIcon">🔓</span>
+                            <span id="lockText">Lock Zoom &amp; Pan</span>
+                        </button>
+                        <div class="zoom-info">
+                            <small>Range: 0 (Very Far) to 15 (Very Close)</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </aside>
+
     <script>
         // Global variables
         let map;
@@ -692,6 +967,201 @@
             west: 79.5,
             east: 82.0
         };
+
+        // ===================================================================
+        // Map style presets — switched via the gear → Settings panel
+        // -------------------------------------------------------------------
+        // Three flavours per preset:
+        //   type: 'google'   → applies a Google native `styles` array
+        //   type: 'stadia'   → swaps the visual layer to Stadia raster tiles
+        //                      (still uses Google for routing/places below)
+        // Each preset also picks its own gradient palette for the path so the
+        // ribbon reads well against that map's colours.
+        // ===================================================================
+
+        // Stadia Maps API key — RESTRICTED by HTTP referrer in the Stadia
+        // dashboard. Browser exposure is fine because of that restriction.
+        const STADIA_API_KEY = 'f97b60b5-5d04-4c87-ad5f-0adece506e92';
+
+        const MAP_STYLES = {
+            'default': {
+                name: 'Default Light',
+                type: 'google',
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
+                    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#616161' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f5f5f5' }] },
+                    { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#bdbdbd' }] },
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#eeeeee' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#e5e5e5' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#9e9e9e' }] },
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+                    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#dadada' }] },
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#616161' }] },
+                    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#9e9e9e' }] },
+                    { featureType: 'transit.line', elementType: 'geometry', stylers: [{ color: '#e5e5e5' }] },
+                    { featureType: 'transit.station', elementType: 'geometry', stylers: [{ color: '#eeeeee' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9c9c9' }] },
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#9e9e9e' }] }
+                ],
+                pathColors: ['#7700FF', '#00FAFF']
+            },
+            'dark': {
+                name: 'Dark Mode',
+                type: 'google',
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
+                    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#a8a8a8' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a1a' }] },
+                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#cccccc' }] },
+                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#bbbbbb' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d2638' }] },
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5e84a3' }] },
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a2a' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#888' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3e3e3e' }] },
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#c0c0c0' }] },
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#222222' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#9c9c9c' }] },
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1a2a1a' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#7a9a7a' }] },
+                    { featureType: 'transit', stylers: [{ visibility: 'off' }] }
+                ],
+                pathColors: ['#9b3aff', '#00faff']  // brighter purple → cyan, pops on dark
+            },
+            'watercolor': {
+                name: 'Vintage Watercolor',
+                type: 'stadia',
+                tileUrl: 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
+                tileExt: 'jpg',
+                pathColors: ['#1a3a8e', '#d4622f'],  // deep navy → warm orange (jewel tones contrast watercolor wash)
+                attribution: 'Map tiles by <a href="https://stamen.com" target="_blank" rel="noopener">Stamen Design</a> · <a href="https://stadiamaps.com" target="_blank" rel="noopener">Stadia Maps</a> · Data <a href="https://openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>'
+            },
+            'antique': {
+                name: 'Antique / Carte du Monde',
+                type: 'stadia',
+                tileUrl: 'https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png',
+                tileExt: 'png',
+                pathColors: ['#3a2614', '#8b6f1a'],  // dark brown ink → muted gold
+                attribution: 'Map tiles by <a href="https://stamen.com" target="_blank" rel="noopener">Stamen Design</a> · <a href="https://stadiamaps.com" target="_blank" rel="noopener">Stadia Maps</a> · Data <a href="https://openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>'
+            },
+            'rich-culture': {
+                name: 'Rich Culture with Nature',
+                type: 'google',
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#f4ede0' }] },         // warm cream land
+                    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f4ede0' }] },
+                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a2810' }] },
+                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3520' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#bcd7d8' }] },     // tropical turquoise
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5a8089' }] },
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#e6cfa3' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#5a3520' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#c9a961' }] },  // gold highways
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] },
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#ebd9b9' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#8b5a2b' }] },
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#7d9870' }] },     // sage green parks
+                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3a5a32' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.stroke', stylers: [{ color: '#f4ede0' }] },
+                    { featureType: 'transit', stylers: [{ visibility: 'off' }] }
+                ],
+                pathColors: ['#2e7d4a', '#c9a961']    // emerald → gold
+            },
+            'sarisara': {
+                name: 'Sarisara Branded',
+                type: 'google',
+                // Defaults until user provides actual brand palette
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#f5efe6' }] },         // warm cream
+                    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] }, // ink brown
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f5efe6' }] },
+                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a2814' }] },
+                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a20' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cad5d6' }] },     // soft sage water
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#7a8a89' }] },
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#e8dcc4' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#6a4a28' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#c9a961' }] }, // gold
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#3a2810' }] },
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#ede4d0' }] },
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#a8b89a' }] },
+                    { featureType: 'transit', stylers: [{ visibility: 'off' }] }
+                ],
+                pathColors: ['#8B6F1A', '#E5C76B']  // antique gold → champagne (matches brand)
+            }
+        };
+
+        // Track the currently-applied Stadia overlay so we can remove it on
+        // switch (Google's native style array can't be applied while a Stadia
+        // raster overlay covers it — they layer differently).
+        let currentStadiaOverlay = null;
+        let currentStyleKey = 'default';
+
+        function applyMapStyle(key) {
+            const style = MAP_STYLES[key];
+            if (!style || !map) return;
+
+            // Remove any active Stadia overlay
+            if (currentStadiaOverlay) {
+                const idx = map.overlayMapTypes.getArray().indexOf(currentStadiaOverlay);
+                if (idx >= 0) map.overlayMapTypes.removeAt(idx);
+                currentStadiaOverlay = null;
+            }
+
+            if (style.type === 'stadia') {
+                // Hide Google's base map so only Stadia tiles render
+                map.setOptions({ styles: [{ stylers: [{ visibility: 'off' }] }] });
+
+                const tileTemplate = style.tileUrl;
+                const overlay = new google.maps.ImageMapType({
+                    getTileUrl: function (coord, zoom) {
+                        return tileTemplate
+                            .replace('{z}', zoom)
+                            .replace('{x}', coord.x)
+                            .replace('{y}', coord.y) +
+                            '?api_key=' + STADIA_API_KEY;
+                    },
+                    tileSize: new google.maps.Size(256, 256),
+                    minZoom: 0,
+                    maxZoom: 18,
+                    name: style.name,
+                    opacity: 1.0
+                });
+                map.overlayMapTypes.push(overlay);
+                currentStadiaOverlay = overlay;
+
+                // Show Stadia attribution (required by their TOS)
+                const attr = document.getElementById('stadiaAttribution');
+                attr.classList.add('show');
+                document.getElementById('stadiaCredits').innerHTML = style.attribution;
+            } else {
+                // Native Google styling
+                map.setOptions({ styles: style.styles || [] });
+                document.getElementById('stadiaAttribution').classList.remove('show');
+            }
+
+            // Update path gradient palette for this style
+            if (style.pathColors) {
+                PATH_COLOR_A = style.pathColors[0];
+                PATH_COLOR_B = style.pathColors[1];
+            }
+
+            // Update active card in the picker
+            document.querySelectorAll('.style-card').forEach(function (card) {
+                card.setAttribute('data-active', card.dataset.style === key ? 'true' : 'false');
+            });
+
+            currentStyleKey = key;
+            try { localStorage.setItem('sarisaraMapStyle', key); } catch (e) { /* private mode */ }
+        }
 
         // Function to create custom numbered marker icon with black background and white text
         function createNumberedMarkerIcon(number) {
@@ -732,94 +1202,7 @@
                 fullscreenControl: true,
                 zoomControl: true,
                 gestureHandling: 'auto',
-                styles: [
-                    {
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#f5f5f5"}]
-                    },
-                    {
-                        "elementType": "labels.icon",
-                        "stylers": [{"visibility": "off"}]
-                    },
-                    {
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#616161"}]
-                    },
-                    {
-                        "elementType": "labels.text.stroke",
-                        "stylers": [{"color": "#f5f5f5"}]
-                    },
-                    {
-                        "featureType": "administrative.land_parcel",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#bdbdbd"}]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#eeeeee"}]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#757575"}]
-                    },
-                    {
-                        "featureType": "poi.park",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#e5e5e5"}]
-                    },
-                    {
-                        "featureType": "poi.park",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#9e9e9e"}]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#ffffff"}]
-                    },
-                    {
-                        "featureType": "road.arterial",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#757575"}]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#dadada"}]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#616161"}]
-                    },
-                    {
-                        "featureType": "road.local",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#9e9e9e"}]
-                    },
-                    {
-                        "featureType": "transit.line",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#e5e5e5"}]
-                    },
-                    {
-                        "featureType": "transit.station",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#eeeeee"}]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#c9c9c9"}]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#9e9e9e"}]
-                    }
-                ]
+                styles: MAP_STYLES['default'].styles  // single source of truth in MAP_STYLES
             });
 
             console.log('Map initialized successfully');
@@ -1001,6 +1384,50 @@
                     map.setZoom(newZoom);
                 }
             });
+
+            // ---- Stage 2B: Settings gear + slide-out panel ----
+            const settingsGear = document.getElementById('settingsGear');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const settingsClose = document.getElementById('settingsClose');
+            const settingsOverlay = document.getElementById('settingsOverlay');
+
+            function openSettings() {
+                settingsPanel.classList.add('open');
+                settingsOverlay.classList.add('show');
+                settingsPanel.setAttribute('aria-hidden', 'false');
+                settingsOverlay.setAttribute('aria-hidden', 'false');
+            }
+            function closeSettings() {
+                settingsPanel.classList.remove('open');
+                settingsOverlay.classList.remove('show');
+                settingsPanel.setAttribute('aria-hidden', 'true');
+                settingsOverlay.setAttribute('aria-hidden', 'true');
+            }
+            settingsGear.addEventListener('click', openSettings);
+            settingsClose.addEventListener('click', closeSettings);
+            settingsOverlay.addEventListener('click', closeSettings);
+            // ESC closes the panel
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && settingsPanel.classList.contains('open')) {
+                    closeSettings();
+                }
+            });
+
+            // Style picker — clicking a card swaps the map style
+            document.querySelectorAll('.style-card').forEach(function (card) {
+                card.addEventListener('click', function () {
+                    const key = card.dataset.style;
+                    if (key && MAP_STYLES[key]) applyMapStyle(key);
+                });
+            });
+
+            // Restore the last-used style from a previous session
+            try {
+                const saved = localStorage.getItem('sarisaraMapStyle');
+                if (saved && MAP_STYLES[saved] && saved !== 'default') {
+                    applyMapStyle(saved);
+                }
+            } catch (e) { /* private mode / SSR */ }
 
             console.log('All event listeners set up');
         }
@@ -1415,8 +1842,10 @@
         //      from the FIRST stop toward the LAST stop — direction of travel.
         // ===================================================================
 
-        const PATH_COLOR_A             = '#7700FF';   // ultraviolet
-        const PATH_COLOR_B             = '#00FAFF';   // electric cyan
+        // PATH_COLOR_A/B are reassigned by applyMapStyle() based on the
+        // active map style (each preset picks its own gradient palette).
+        let   PATH_COLOR_A             = '#7700FF';   // ultraviolet (default)
+        let   PATH_COLOR_B             = '#00FAFF';   // electric cyan (default)
         const PATH_WEIGHT              = 4;           // line thickness in px
         const PATH_FLOW_SPEED          = 0.0035;      // gradient flow per frame (higher = faster)
         const PATH_SIMPLIFY_TOLERANCE  = 0.012;       // degrees — bigger = fewer bends. ~0.012° ≈ 1.3 km in Sri Lanka.
