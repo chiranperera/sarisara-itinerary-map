@@ -769,8 +769,14 @@
         }
 
         .map-section.style-antique {
-            /* Letterbox area becomes parchment instead of grey */
+            /* Same parchment image behind everything — visible in any
+               aspect-ratio letterbox area (and a safety net if Google
+               Maps paints anything we didn't expect). */
             background-color: #d9c79a;
+            background-image: url('parchment-bg.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
         }
 
         /* The parchment image already includes: rhumb lines, compass rose,
@@ -1378,10 +1384,16 @@
                 type: 'google',                  // Google native styling — keeps cities, roads, parks, labels VISIBLE
                 cssClass: 'style-antique',       // toggles parchment overlay, frame, corner flourishes, compass, ships
                 styles: [
-                    // Land = cream parchment
-                    { elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
+                    // CRITICAL: do NOT set a global `elementType: 'geometry'` color
+                    // here — that would paint water tiles cream and hide the
+                    // parchment background image. Instead, fill ONLY landscape
+                    // (land features) with cream, leaving water genuinely transparent.
+                    { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
+                    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
+                    { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
+
                     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-                    // All labels in dark sepia ink, with a cream stroke for legibility
+                    // Labels in dark sepia ink, with a cream stroke for legibility
                     { elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
                     { elementType: 'labels.text.stroke', stylers: [{ color: '#f0e2bf' }, { weight: 3 }] },
 
@@ -1391,9 +1403,11 @@
                     { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
                     { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#7a5a3a' }, { weight: 0.5 }] },
 
-                    // Water OFF — letting the parchment background image show through
-                    // the ocean area. Sri Lanka's cream land stays opaque on top.
-                    { featureType: 'water', stylers: [{ visibility: 'off' }] },
+                    // Water hidden completely — no fill, no labels, no stroke.
+                    // With no global geometry color, the #map's background-image
+                    // (parchment-bg.jpg) shows through in the ocean area.
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
+                    { featureType: 'water', elementType: 'labels', stylers: [{ visibility: 'off' }] },
 
                     // ALL ROADS HIDDEN — antique reference has no road network,
                     // only terrain, illustrations, and labels. Path between stops
