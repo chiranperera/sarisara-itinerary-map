@@ -505,11 +505,11 @@
             background: #333333;
         }
 
-        /* ===== Settings gear + slide-out Settings panel ===== */
-        .settings-gear {
+        /* ===== Map controls: Fullscreen button + Settings gear ===== */
+        .settings-gear,
+        .fullscreen-btn {
             position: absolute;
             top: 14px;
-            right: 14px;
             width: 44px;
             height: 44px;
             padding: 0;
@@ -528,14 +528,20 @@
             transition: all 0.2s ease;
         }
 
-        .settings-gear:hover {
+        .settings-gear     { right: 14px; }
+        .fullscreen-btn    { right: 66px; }    /* sits to the left of the gear */
+
+        .settings-gear:hover,
+        .fullscreen-btn:hover {
             background: #000000;
             color: #ffffff;
             border-color: #000000;
-            transform: rotate(45deg);
         }
 
-        .settings-gear svg {
+        .settings-gear:hover { transform: rotate(45deg); }
+
+        .settings-gear svg,
+        .fullscreen-btn svg {
             display: block;
         }
 
@@ -724,12 +730,14 @@
 
         @media (max-width: 768px) {
             .settings-panel { width: 92vw; }
-            .settings-gear {
+            .settings-gear,
+            .fullscreen-btn {
                 top: 8px;
-                right: 8px;
                 width: 40px;
                 height: 40px;
             }
+            .settings-gear  { right: 8px; }
+            .fullscreen-btn { right: 56px; }
             .style-picker { grid-template-columns: 1fr 1fr; }
         }
 
@@ -748,13 +756,34 @@
         .map-section.style-antique #map {
             /* Subtle warmth + softer saturation. Heavy lifting is now done by
                the Google native sepia style array — this is just a final pass
-               to unify the look with the parchment overlay. */
+               to unify with the parchment image. */
             filter: contrast(1.04) saturate(0.92) sepia(0.05);
+            /* Parchment background image shows wherever Google's tiles are
+               transparent (water is set to visibility:off in the styles array,
+               so the image is visible in the ocean area around Sri Lanka).
+               Filename: parchment-bg.jpg — saved next to index.html in the repo. */
+            background-image: url('parchment-bg.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
         }
 
         .map-section.style-antique {
             /* Letterbox area becomes parchment instead of grey */
             background-color: #d9c79a;
+        }
+
+        /* The parchment image already includes: rhumb lines, compass rose,
+           sailing ships, sea creatures, decorative frame, corner ornaments,
+           and a paper-grain texture with coffee stains. So we hide the SVG
+           versions of those when antique is active — no duplication. */
+        .map-section.style-antique .rhumb-lines,
+        .map-section.style-antique .antique-frame,
+        .map-section.style-antique .antique-corner,
+        .map-section.style-antique .antique-compass,
+        .map-section.style-antique .antique-ship,
+        .map-section.style-antique .parchment-overlay {
+            display: none !important;
         }
 
         .map-section.style-antique .antique-decoration {
@@ -961,6 +990,14 @@
         <!-- Map Section (Right 60%) -->
         <div class="map-section" id="mapSection">
             <div id="map"></div>
+
+            <!-- Custom fullscreen button (replaces Google's fullscreenControl so
+                 the WHOLE .map-section goes fullscreen and decorations come along) -->
+            <button class="fullscreen-btn" id="fullscreenBtn" aria-label="Toggle fullscreen" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                    <path d="M5 5h5V3H3v7h2V5zm0 14h5v2H3v-7h2v5zm14-14h-5V3h7v7h-2V5zm0 14h-5v2h7v-7h-2v5z"/>
+                </svg>
+            </button>
 
             <!-- Settings gear (top-right of map) -->
             <button class="settings-gear" id="settingsGear" aria-label="Open settings" title="Settings">
@@ -1354,26 +1391,26 @@
                     { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
                     { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#7a5a3a' }, { weight: 0.5 }] },
 
-                    // Water = warm tan / sepia ocean (matches the reference ocean colour)
-                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9a974' }] },
-                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
-                    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#c9a974' }, { weight: 2 }] },
+                    // Water OFF — letting the parchment background image show through
+                    // the ocean area. Sri Lanka's cream land stays opaque on top.
+                    { featureType: 'water', stylers: [{ visibility: 'off' }] },
 
-                    // Roads — light tan to bronze, with darker hairline stroke (reads as ink-drawn lines)
-                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#d4a974' }] },
-                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
-                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#b8884a' }] },
-                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#3a2008' }] },
-                    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#c9a974' }] },
+                    // ALL ROADS HIDDEN — antique reference has no road network,
+                    // only terrain, illustrations, and labels. Path between stops
+                    // is a separate Polyline overlay so it still renders.
+                    { featureType: 'road', stylers: [{ visibility: 'off' }] },
+                    { featureType: 'road.highway', stylers: [{ visibility: 'off' }] },
+                    { featureType: 'road.arterial', stylers: [{ visibility: 'off' }] },
+                    { featureType: 'road.local', stylers: [{ visibility: 'off' }] },
 
-                    // POIs in slightly darker cream so they sit on the land but don't shout
-                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#e8d8b0' }] },
-                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
-                    // Parks in a forested-tan (hint of the green-brown shading you'd see in a hand-drawn map)
-                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#c9b27e' }] },
+                    // POIs hidden (icons + labels) — only parks remain so we can
+                    // see forest/national-park areas as a faint tan shading
+                    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ visibility: 'on' }, { color: '#c9b27e' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
                     { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3a2208' }] },
 
-                    // Transit — irrelevant for an antique tour map, hide
+                    // Transit — hidden
                     { featureType: 'transit', stylers: [{ visibility: 'off' }] }
                 ],
                 pathColors: ['#5a2810', '#d4a534']  // burgundy ink → bright gold (reads boldly on cream)
@@ -1443,58 +1480,42 @@
         // mountains. Only visible when the Antique style is selected.
         // ===================================================================
 
+        // Only land decorations now — the parchment image already has its own
+        // ships and sea creatures, so we don't duplicate. Mountains and forests
+        // sit on Sri Lanka's cream land where the image doesn't reach.
         const ANTIQUE_DECORATIONS = [
-            // Mountain ranges
-            { lat: 7.45, lng: 80.78, type: 'mountain' },  // Knuckles
+            { lat: 7.45, lng: 80.78, type: 'mountain' },  // Knuckles range
             { lat: 6.81, lng: 80.50, type: 'mountain' },  // Adam's Peak
             { lat: 6.95, lng: 80.83, type: 'mountain' },  // Hill country / Horton Plains
-            // Forests / national parks
-            { lat: 8.43, lng: 80.07, type: 'forest' },    // Wilpattu
-            { lat: 6.45, lng: 81.45, type: 'forest' },    // Yala
-            { lat: 7.75, lng: 80.95, type: 'forest' },    // Wasgamuwa
-            // Sea creatures (in surrounding ocean)
-            { lat: 7.70, lng: 82.30, type: 'serpent' },   // Indian Ocean east
-            { lat: 6.50, lng: 79.20, type: 'fish' }       // West coast ocean
+            { lat: 8.43, lng: 80.07, type: 'forest' },    // Wilpattu NP
+            { lat: 6.45, lng: 81.45, type: 'forest' },    // Yala NP
+            { lat: 7.75, lng: 80.95, type: 'forest' }     // Wasgamuwa NP
         ];
 
+        // Pure line-art icons: fill="none" so the underlying cream land color
+        // shows through; only ink-coloured strokes define the shape.
         const ANTIQUE_ICONS = {
             mountain:
                 '<svg width="48" height="34" viewBox="0 0 48 34" xmlns="http://www.w3.org/2000/svg">' +
                 '<path d="M 2 30 L 9 12 L 16 24 L 20 18 L 24 30 Z M 24 30 L 31 14 L 38 26 L 42 20 L 46 30 Z" ' +
-                'fill="#7a5a36" stroke="#3a2208" stroke-width="0.7" stroke-linejoin="round"/>' +
-                '<path d="M 9 12 L 13 19 M 31 14 L 35 21" stroke="#3a2208" stroke-width="0.5" opacity="0.55"/>' +
+                'fill="none" stroke="#3a2208" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+                '<path d="M 9 12 L 13 19 M 31 14 L 35 21" stroke="#3a2208" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>' +
                 '</svg>',
             forest:
                 '<svg width="46" height="32" viewBox="0 0 46 32" xmlns="http://www.w3.org/2000/svg">' +
-                '<line x1="10" y1="30" x2="10" y2="22" stroke="#3a2208" stroke-width="0.7"/>' +
-                '<line x1="22" y1="30" x2="22" y2="18" stroke="#3a2208" stroke-width="0.7"/>' +
-                '<line x1="34" y1="30" x2="34" y2="22" stroke="#3a2208" stroke-width="0.7"/>' +
-                '<circle cx="10" cy="22" r="6" fill="#5a4a26" stroke="#3a2208" stroke-width="0.6" opacity="0.92"/>' +
-                '<circle cx="22" cy="18" r="7.5" fill="#5a4a26" stroke="#3a2208" stroke-width="0.6"/>' +
-                '<circle cx="34" cy="22" r="6" fill="#5a4a26" stroke="#3a2208" stroke-width="0.6" opacity="0.92"/>' +
-                '<circle cx="42" cy="20" r="3.5" fill="#5a4a26" stroke="#3a2208" stroke-width="0.5" opacity="0.85"/>' +
-                '</svg>',
-            serpent:
-                '<svg width="56" height="38" viewBox="0 0 56 38" xmlns="http://www.w3.org/2000/svg">' +
-                '<path d="M 6 22 Q 14 12 22 22 T 38 22 Q 44 22 48 16" ' +
-                'stroke="#5a3a14" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
-                '<path d="M 48 16 L 54 12 L 52 22 Z" fill="#5a3a14"/>' +
-                '<circle cx="6" cy="22" r="3" fill="#5a3a14"/>' +
-                '<circle cx="6.5" cy="21" r="0.9" fill="#f0e2bf"/>' +
-                '</svg>',
-            fish:
-                '<svg width="36" height="26" viewBox="0 0 36 26" xmlns="http://www.w3.org/2000/svg">' +
-                '<path d="M 4 13 Q 13 6 24 13 Q 13 20 4 13 Z" fill="#5a3a14" stroke="#3a2208" stroke-width="0.5" opacity="0.92"/>' +
-                '<path d="M 24 13 L 32 7 L 32 19 Z" fill="#5a3a14"/>' +
-                '<circle cx="9" cy="12" r="0.9" fill="#f0e2bf"/>' +
+                '<line x1="10" y1="30" x2="10" y2="22" stroke="#3a2208" stroke-width="1.2" stroke-linecap="round"/>' +
+                '<line x1="22" y1="30" x2="22" y2="18" stroke="#3a2208" stroke-width="1.2" stroke-linecap="round"/>' +
+                '<line x1="34" y1="30" x2="34" y2="22" stroke="#3a2208" stroke-width="1.2" stroke-linecap="round"/>' +
+                '<circle cx="10" cy="22" r="6"   fill="none" stroke="#3a2208" stroke-width="1.4"/>' +
+                '<circle cx="22" cy="18" r="7.5" fill="none" stroke="#3a2208" stroke-width="1.4"/>' +
+                '<circle cx="34" cy="22" r="6"   fill="none" stroke="#3a2208" stroke-width="1.4"/>' +
+                '<circle cx="42" cy="20" r="3.5" fill="none" stroke="#3a2208" stroke-width="1.2"/>' +
                 '</svg>'
         };
 
         const ANTIQUE_ICON_SIZES = {
             mountain: { w: 48, h: 34 },
-            forest:   { w: 46, h: 32 },
-            serpent:  { w: 56, h: 38 },
-            fish:     { w: 36, h: 26 }
+            forest:   { w: 46, h: 32 }
         };
 
         let antiqueLandMarkers = [];
@@ -1640,7 +1661,7 @@
                 },
                 mapTypeControl: true,
                 streetViewControl: false,
-                fullscreenControl: true,
+                fullscreenControl: false,   // we use our own button so .map-section goes fullscreen WITH its decorations
                 zoomControl: true,
                 gestureHandling: 'auto',
                 styles: MAP_STYLES['default'].styles  // single source of truth in MAP_STYLES
@@ -1860,6 +1881,30 @@
                     const key = card.dataset.style;
                     if (key && MAP_STYLES[key]) applyMapStyle(key);
                 });
+            });
+
+            // Custom fullscreen button: fullscreens the WHOLE .map-section
+            // (not just #map), so every decoration child is visible too.
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            fullscreenBtn.addEventListener('click', function () {
+                const mapSection = document.getElementById('mapSection');
+                const fsEl = document.fullscreenElement ||
+                             document.webkitFullscreenElement ||
+                             document.mozFullScreenElement ||
+                             document.msFullscreenElement;
+                if (fsEl) {
+                    // Exit
+                    (document.exitFullscreen ||
+                     document.webkitExitFullscreen ||
+                     document.mozCancelFullScreen ||
+                     document.msExitFullscreen).call(document);
+                } else {
+                    // Enter
+                    (mapSection.requestFullscreen ||
+                     mapSection.webkitRequestFullscreen ||
+                     mapSection.mozRequestFullScreen ||
+                     mapSection.msRequestFullscreen).call(mapSection);
+                }
             });
 
             // Restore the last-used style from a previous session
