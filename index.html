@@ -347,8 +347,8 @@
             display: none;
             position: absolute;
             top: 20px;
-            right: 20px;
-            width: 350px;
+            left: 20px;                     /* top-LEFT corner */
+            width: 320px;
             max-height: calc(100vh - 40px);
             background: #ffffff;
             border: 2px solid #000000;
@@ -609,9 +609,58 @@
         .vintage-panel.fullscreen-panel .action-buttons button {
             flex: 1;
             padding: 8px 4px;
-            font-size: 9.5px;
+            font-size: 10px;
             letter-spacing: 0.6px;
             min-width: 0;
+        }
+
+        /* Hide settings gear + fullscreen button when in fullscreen mode —
+           keeps the recording view clean. ESC still exits fullscreen, and H
+           toggles the itinerary panel. */
+        .map-section:fullscreen .settings-gear,
+        .map-section:fullscreen .fullscreen-btn,
+        .map-section:-webkit-full-screen .settings-gear,
+        .map-section:-webkit-full-screen .fullscreen-btn,
+        .map-section:-moz-full-screen .settings-gear,
+        .map-section:-moz-full-screen .fullscreen-btn {
+            display: none !important;
+        }
+
+        /* Panel-hidden state — toggled by the H keyboard shortcut.
+           Hides whichever itinerary panel is currently active. */
+        .input-section.panel-hidden,
+        .fullscreen-panel.panel-hidden {
+            display: none !important;
+        }
+
+        /* Small keyboard-shortcut hint, sits at bottom-left of map */
+        .panel-shortcut-hint {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            padding: 6px 12px;
+            background: rgba(58, 32, 8, 0.78);
+            color: #f0e2bf;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 11px;
+            letter-spacing: 0.6px;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 9;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .panel-shortcut-hint.show {
+            opacity: 0.85;
+        }
+        .panel-shortcut-hint kbd {
+            background: #f0e2bf;
+            color: #3a2008;
+            padding: 1px 6px;
+            border-radius: 2px;
+            font-family: Georgia, serif;
+            font-weight: 700;
+            margin: 0 2px;
         }
 
         /* Buttons — primary look like vintage stamps */
@@ -1333,9 +1382,9 @@
                         <div class="empty-message">No destinations added yet. Start planning your journey!</div>
                     </div>
                     <div class="action-buttons">
-                        <button id="clearAllBtn" class="secondary-btn">Clear All</button>
-                        <button id="optimizeRouteBtn" class="optimize-btn">Optimize Route</button>
-                        <button id="resetOrderBtn" class="secondary-btn">Reset Order</button>
+                        <button id="clearAllBtn" class="secondary-btn">Clear</button>
+                        <button id="optimizeRouteBtn" class="optimize-btn">Optimize</button>
+                        <button id="resetOrderBtn" class="secondary-btn">Reset</button>
                     </div>
                 </div>
             </div>
@@ -1368,6 +1417,11 @@
             <!-- Stadia attribution (shown only when Stadia tiles are active) -->
             <div class="stadia-attribution" id="stadiaAttribution" aria-hidden="true">
                 Map: <span id="stadiaCredits">Stadia · Stamen · OpenStreetMap</span>
+            </div>
+
+            <!-- Keyboard shortcut hint — briefly visible after relevant actions -->
+            <div class="panel-shortcut-hint" id="panelShortcutHint" aria-hidden="true">
+                Press <kbd>H</kbd> to toggle panel
             </div>
 
             <!-- ===== Antique / Carte du Monde decorations ===== -->
@@ -1536,9 +1590,9 @@
                         <div class="empty-message">No destinations added yet</div>
                     </div>
                     <div class="action-buttons">
-                        <button id="clearAllBtnFS" class="secondary-btn">Clear All</button>
-                        <button id="optimizeRouteBtnFS" class="optimize-btn">Optimize Route</button>
-                        <button id="resetOrderBtnFS" class="secondary-btn">Reset Order</button>
+                        <button id="clearAllBtnFS" class="secondary-btn">Clear</button>
+                        <button id="optimizeRouteBtnFS" class="optimize-btn">Optimize</button>
+                        <button id="resetOrderBtnFS" class="secondary-btn">Reset</button>
                     </div>
                 </div>
             </div>
@@ -2226,6 +2280,45 @@
                     if (key && MAP_STYLES[key]) applyMapStyle(key);
                 });
             });
+
+            // ---- Keyboard shortcut: H toggles the itinerary panel ----
+            // Whichever panel is currently active for the mode gets toggled.
+            const panelHint = document.getElementById('panelShortcutHint');
+            let hintTimer = null;
+            function flashShortcutHint() {
+                if (!panelHint) return;
+                panelHint.classList.add('show');
+                clearTimeout(hintTimer);
+                hintTimer = setTimeout(function () {
+                    panelHint.classList.remove('show');
+                }, 1800);
+            }
+            function toggleItineraryPanel() {
+                const fsEl = document.fullscreenElement ||
+                             document.webkitFullscreenElement ||
+                             document.mozFullScreenElement;
+                if (fsEl) {
+                    const fsPanel = document.getElementById('fullscreenPanel');
+                    if (fsPanel) fsPanel.classList.toggle('panel-hidden');
+                } else {
+                    const main = document.querySelector('.input-section');
+                    if (main) main.classList.toggle('panel-hidden');
+                }
+                flashShortcutHint();
+            }
+            document.addEventListener('keydown', function (e) {
+                // Skip when user is typing in an input / textarea / contenteditable
+                const tag = (document.activeElement && document.activeElement.tagName) || '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement.isContentEditable) return;
+                // Ignore if any modifier is held (so it doesn't fight browser shortcuts)
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+                if (e.key === 'h' || e.key === 'H') {
+                    e.preventDefault();
+                    toggleItineraryPanel();
+                }
+            });
+            // Brief intro flash so user discovers the shortcut
+            setTimeout(flashShortcutHint, 1500);
 
             // ---- Pan controls (Settings → Map Position) ----
             // Each click pans the map by PAN_STEP pixels in screen space.
