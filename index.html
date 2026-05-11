@@ -516,7 +516,7 @@
            - Secondary buttons borderless with sepia ink text
            =================================================================== */
 
-        .input-section {
+        .vintage-panel {
             background: #f0e2bf;              /* parchment cream — matches the map's land colour */
             border-right: none;               /* removes the outer black border between panel and map */
             color: #3a2008;
@@ -524,8 +524,8 @@
             padding: 32px 26px;
         }
 
-        .input-section h2,
-        .input-section h3 {
+        .vintage-panel h2,
+        .vintage-panel h3 {
             color: #3a2008;
             font-family: Georgia, 'Times New Roman', Times, serif;
             font-weight: 700;
@@ -536,13 +536,13 @@
             text-transform: none;
         }
 
-        .input-section h2 { font-size: 20px; }
-        .input-section h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1.2px; }
+        .vintage-panel h2 { font-size: 20px; }
+        .vintage-panel h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1.2px; }
 
         /* Sections — transparent backgrounds, no rounded boxes; thin sepia separators */
-        .input-section .zoom-control,
-        .input-section .itinerary-list,
-        .input-section .distance-info {
+        .vintage-panel .zoom-control,
+        .vintage-panel .itinerary-list,
+        .vintage-panel .distance-info {
             background: transparent;
             border: none;
             border-radius: 0;
@@ -552,11 +552,13 @@
             min-height: 0;
         }
 
-        .input-section .itinerary-list { border-bottom: none; }   /* last section has no separator */
+        .vintage-panel .itinerary-list { border-bottom: none; }   /* last section has no separator */
 
-        /* Inputs — bottom-border-only "underline" vintage style */
-        .input-section #locationInput,
-        .input-section #zoomInput {
+        /* Inputs — bottom-border-only "underline" vintage style.
+           Element selectors so this matches both the main and fullscreen
+           panel inputs (which use locationInputFS / zoomInputFS IDs). */
+        .vintage-panel input[type="text"],
+        .vintage-panel input[type="number"] {
             background: transparent;
             border: none;
             border-bottom: 1px solid rgba(74, 53, 32, 0.45);
@@ -568,20 +570,29 @@
             box-shadow: none;
             transition: border-color 0.2s ease;
         }
-        .input-section #locationInput::placeholder,
-        .input-section #zoomInput::placeholder {
+        .vintage-panel input[type="text"]::placeholder,
+        .vintage-panel input[type="number"]::placeholder {
             color: rgba(74, 53, 32, 0.5);
             font-style: italic;
         }
-        .input-section #locationInput:focus,
-        .input-section #zoomInput:focus {
+        .vintage-panel input[type="text"]:focus,
+        .vintage-panel input[type="number"]:focus {
             border-bottom-color: #3a2008;
             box-shadow: none;
             outline: none;
         }
 
+        /* Fullscreen panel needs its black border explicitly removed (the
+           original .fullscreen-panel rule applies `border: 2px solid #000`;
+           the vintage rule only handles border-right). */
+        .vintage-panel.fullscreen-panel {
+            border: none;
+            box-shadow: 0 6px 24px rgba(74, 53, 32, 0.25);
+            background: #f0e2bf;
+        }
+
         /* Buttons — primary look like vintage stamps */
-        .input-section button {
+        .vintage-panel button {
             background: #3a2008;
             color: #f0e2bf;
             border: none;
@@ -595,61 +606,61 @@
             transition: background 0.2s ease;
             cursor: pointer;
         }
-        .input-section button:hover {
+        .vintage-panel button:hover {
             background: #1a0e02;
             transform: none;
             box-shadow: 0 1px 0 rgba(0,0,0,0.25);
         }
 
         /* Secondary buttons — transparent with sepia text */
-        .input-section .secondary-btn {
+        .vintage-panel .secondary-btn {
             background: transparent;
             color: #3a2008;
             border: 1px solid rgba(74, 53, 32, 0.5);
             box-shadow: none;
         }
-        .input-section .secondary-btn:hover {
+        .vintage-panel .secondary-btn:hover {
             background: rgba(74, 53, 32, 0.08);
             color: #3a2008;
         }
 
-        .input-section .optimize-btn {
+        .vintage-panel .optimize-btn {
             background: #3a2008;
             color: #f0e2bf;
             border: none;
         }
-        .input-section .optimize-btn:hover { background: #1a0e02; }
+        .vintage-panel .optimize-btn:hover { background: #1a0e02; }
 
         /* Zoom +/- and Lock buttons */
-        .input-section .zoom-btn {
+        .vintage-panel .zoom-btn {
             background: #3a2008;
             color: #f0e2bf;
             border: none;
             border-radius: 0;
             box-shadow: none;
         }
-        .input-section .zoom-btn:hover { background: #1a0e02; }
+        .vintage-panel .zoom-btn:hover { background: #1a0e02; }
 
-        .input-section .zoom-lock-btn {
+        .vintage-panel .zoom-lock-btn {
             background: transparent;
             color: #3a2008;
             border: 1px solid rgba(74, 53, 32, 0.5);
             border-radius: 0;
             padding: 9px 14px;
         }
-        .input-section .zoom-lock-btn:hover {
+        .vintage-panel .zoom-lock-btn:hover {
             background: rgba(74, 53, 32, 0.08);
         }
-        .input-section .zoom-lock-btn.locked {
+        .vintage-panel .zoom-lock-btn.locked {
             background: #3a2008;
             color: #f0e2bf;
             border-color: #3a2008;
         }
 
-        .input-section .zoom-info small { color: rgba(74, 53, 32, 0.55); font-style: italic; }
+        .vintage-panel .zoom-info small { color: rgba(74, 53, 32, 0.55); font-style: italic; }
 
         /* Itinerary location items — no borders, thin dashed sepia separator */
-        .input-section .location-item {
+        .vintage-panel .location-item {
             background: transparent;
             border: none;
             border-radius: 0;
@@ -657,40 +668,40 @@
             padding: 12px 4px;
             margin: 0;
         }
-        .input-section .location-item:last-child { border-bottom: none; }
-        .input-section .location-item:hover {
+        .vintage-panel .location-item:last-child { border-bottom: none; }
+        .vintage-panel .location-item:hover {
             background: rgba(74, 53, 32, 0.05);
             border-color: rgba(74, 53, 32, 0.4);
             transform: none;
             box-shadow: none;
         }
 
-        .input-section .location-number {
+        .vintage-panel .location-number {
             background: #3a2008;
             color: #f0e2bf;
             border-radius: 0;
             font-family: Georgia, serif;
         }
 
-        .input-section .location-name {
+        .vintage-panel .location-name {
             color: #3a2008;
             font-family: Georgia, 'Times New Roman', Times, serif;
         }
 
-        .input-section .leg-distance {
+        .vintage-panel .leg-distance {
             color: rgba(74, 53, 32, 0.65);
             font-style: italic;
         }
 
         /* Remove (×) button — sepia, transparent, no border */
-        .input-section .remove-btn {
+        .vintage-panel .remove-btn {
             background: transparent;
             color: #3a2008;
             border: none;
             font-family: Georgia, serif;
             font-size: 20px;
         }
-        .input-section .remove-btn:hover {
+        .vintage-panel .remove-btn:hover {
             background: rgba(74, 53, 32, 0.12);
             color: #3a2008;
             border: none;
@@ -698,7 +709,7 @@
         }
 
         /* Distance display — vintage typography */
-        .input-section .distance-label {
+        .vintage-panel .distance-label {
             color: rgba(74, 53, 32, 0.7);
             font-family: Georgia, serif;
             font-style: italic;
@@ -706,14 +717,14 @@
             letter-spacing: 1.5px;
             font-size: 11px;
         }
-        .input-section .distance-value {
+        .vintage-panel .distance-value {
             color: #3a2008;
             font-family: Georgia, 'Times New Roman', Times, serif;
             font-weight: 700;
         }
-        .input-section .distance-value .unit { color: rgba(74, 53, 32, 0.7); }
+        .vintage-panel .distance-value .unit { color: rgba(74, 53, 32, 0.7); }
 
-        .input-section .empty-message {
+        .vintage-panel .empty-message {
             color: rgba(74, 53, 32, 0.55);
             font-style: italic;
             font-family: Georgia, serif;
@@ -901,6 +912,57 @@
             color: #000000;
             text-align: center;
             line-height: 1.3;
+        }
+
+        /* Map Position pan controls — 3x3 grid with arrow buttons */
+        .pan-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            grid-template-areas:
+                ".    up    ."
+                "left reset right"
+                ".    down  .";
+            gap: 6px;
+            max-width: 180px;
+            margin: 0 auto;
+        }
+        .pan-up    { grid-area: up; }
+        .pan-down  { grid-area: down; }
+        .pan-left  { grid-area: left; }
+        .pan-right { grid-area: right; }
+        .pan-reset { grid-area: reset; }
+
+        .pan-btn {
+            width: 100%;
+            height: 44px;
+            padding: 0;
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .pan-btn:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .pan-btn.pan-reset {
+            font-size: 14px;
+            font-weight: 600;
         }
 
         /* Settings-panel zoom control overrides (compact for sidebar context) */
@@ -1188,7 +1250,7 @@
 <body>
     <div class="container">
         <!-- Location Input Section (Left 40%) -->
-        <div class="input-section">
+        <div class="input-section vintage-panel">
             <div class="input-container">
                 <h2>Add Destination</h2>
                 <div class="form-group">
@@ -1392,7 +1454,7 @@
             </div>
 
             <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
-            <div class="fullscreen-panel" id="fullscreenPanel">
+            <div class="fullscreen-panel vintage-panel" id="fullscreenPanel">
                 <h2>Add Destination</h2>
                 <div class="form-group">
                     <input
@@ -1510,6 +1572,17 @@
                             <small>Range: 0 (Very Far) to 15 (Very Close)</small>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h3>Map Position</h3>
+                <div class="pan-controls">
+                    <button class="pan-btn pan-up"    id="panUp"    title="Pan up"    aria-label="Pan map up">↑</button>
+                    <button class="pan-btn pan-left"  id="panLeft"  title="Pan left"  aria-label="Pan map left">←</button>
+                    <button class="pan-btn pan-reset" id="panReset" title="Reset to default position" aria-label="Reset map position">⌂</button>
+                    <button class="pan-btn pan-right" id="panRight" title="Pan right" aria-label="Pan map right">→</button>
+                    <button class="pan-btn pan-down"  id="panDown"  title="Pan down"  aria-label="Pan map down">↓</button>
                 </div>
             </section>
         </div>
@@ -2170,6 +2243,24 @@
                     const key = card.dataset.style;
                     if (key && MAP_STYLES[key]) applyMapStyle(key);
                 });
+            });
+
+            // ---- Pan controls (Settings → Map Position) ----
+            // Each click pans the map by PAN_STEP pixels in screen space.
+            // Respects the zoom-lock setting: when locked, clicks do nothing.
+            const PAN_STEP = 120;
+            const panBy = function (dx, dy) {
+                if (isZoomLocked) return;
+                map.panBy(dx, dy);
+            };
+            document.getElementById('panUp').addEventListener('click', function () { panBy(0, -PAN_STEP); });
+            document.getElementById('panDown').addEventListener('click', function () { panBy(0, PAN_STEP); });
+            document.getElementById('panLeft').addEventListener('click', function () { panBy(-PAN_STEP, 0); });
+            document.getElementById('panRight').addEventListener('click', function () { panBy(PAN_STEP, 0); });
+            document.getElementById('panReset').addEventListener('click', function () {
+                if (isZoomLocked) return;
+                map.panTo(SRI_LANKA_CENTER);
+                map.setZoom(8.6);
             });
 
             // Custom fullscreen button: fullscreens the WHOLE .map-section
