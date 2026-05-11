@@ -730,6 +730,37 @@
             font-family: Georgia, serif;
         }
 
+        /* Google Places autocomplete dropdown — vintage parchment style.
+           Max z-index so it floats above the fullscreen view; also applied
+           via JS appendChild when in fullscreen to ensure visibility. */
+        .pac-container {
+            z-index: 2147483647 !important;
+            background: #f0e2bf;
+            border: 1px solid rgba(74, 53, 32, 0.35);
+            border-radius: 0;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            box-shadow: 0 4px 16px rgba(74, 53, 32, 0.25);
+            margin-top: 2px;
+        }
+        .pac-item {
+            color: #3a2008;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(74, 53, 32, 0.12);
+            cursor: pointer;
+        }
+        .pac-item:first-child { border-top: none; }
+        .pac-item:hover, .pac-item-selected {
+            background: rgba(74, 53, 32, 0.10);
+            color: #1a0e02;
+        }
+        .pac-item-query {
+            color: #1a0e02;
+            font-weight: 600;
+        }
+        .pac-matched { color: #1a0e02; font-weight: 700; }
+        .pac-icon { display: none; }
+
         /* ===== Map controls: Fullscreen button + Settings gear ===== */
         .settings-gear,
         .fullscreen-btn {
@@ -2390,6 +2421,29 @@
 
                 syncLocationsList();
 
+                // Google's Places Autocomplete attaches its suggestions dropdown
+                // (.pac-container) directly to <body>. In fullscreen mode the
+                // body is outside the rendered viewport so the dropdown is
+                // invisible. Move every .pac-container into the fullscreen
+                // element. Also watch the DOM for any NEW .pac-container
+                // Google creates lazily on first focus.
+                function movePacContainersIntoFullscreen() {
+                    document.querySelectorAll('.pac-container').forEach(function (pac) {
+                        if (pac.parentElement !== fullscreenElement) {
+                            fullscreenElement.appendChild(pac);
+                        }
+                    });
+                }
+                movePacContainersIntoFullscreen();
+                // Re-run after a tick in case Autocomplete hasn't built it yet
+                setTimeout(movePacContainersIntoFullscreen, 100);
+                setTimeout(movePacContainersIntoFullscreen, 400);
+                // Also re-run whenever the FS input is focused (Autocomplete
+                // sometimes creates the dropdown on first focus, not on init).
+                const _inputFS = document.getElementById('locationInputFS');
+                _inputFS.addEventListener('focus', movePacContainersIntoFullscreen);
+                _inputFS.addEventListener('input', movePacContainersIntoFullscreen);
+
                 console.log('Panel appended to fullscreen element and made visible');
             } else {
                 // Exiting fullscreen - move panel back and hide it
@@ -2402,6 +2456,14 @@
                 // Hide the panel
                 fullscreenPanel.classList.remove('active');
                 fullscreenPanel.style.display = 'none';
+
+                // Move autocomplete dropdowns back to <body> so they keep
+                // working in normal (non-fullscreen) mode.
+                document.querySelectorAll('.pac-container').forEach(function (pac) {
+                    if (pac.parentElement !== document.body) {
+                        document.body.appendChild(pac);
+                    }
+                });
             }
         }
 
