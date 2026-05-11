@@ -505,6 +505,220 @@
             background: #333333;
         }
 
+        /* ===================================================================
+           Vintage right panel — overrides the base panel styling above
+           with a sepia / parchment palette + serif typography.
+           - No outer border between panel and map
+           - Section backgrounds transparent (parchment shows below)
+           - Element borders removed (inputs, buttons, list items)
+           - Faint sepia bottom-border as section separator
+           - Primary buttons styled like vintage stamps (dark sepia + cream text)
+           - Secondary buttons borderless with sepia ink text
+           =================================================================== */
+
+        .input-section {
+            background: #f0e2bf;              /* parchment cream — matches the map's land colour */
+            border-right: none;               /* removes the outer black border between panel and map */
+            color: #3a2008;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            padding: 32px 26px;
+        }
+
+        .input-section h2,
+        .input-section h3 {
+            color: #3a2008;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(74, 53, 32, 0.35);   /* sepia underline as section heading separator */
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+            text-transform: none;
+        }
+
+        .input-section h2 { font-size: 20px; }
+        .input-section h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1.2px; }
+
+        /* Sections — transparent backgrounds, no rounded boxes; thin sepia separators */
+        .input-section .zoom-control,
+        .input-section .itinerary-list,
+        .input-section .distance-info {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 18px 0;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(74, 53, 32, 0.20);
+            min-height: 0;
+        }
+
+        .input-section .itinerary-list { border-bottom: none; }   /* last section has no separator */
+
+        /* Inputs — bottom-border-only "underline" vintage style */
+        .input-section #locationInput,
+        .input-section #zoomInput {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(74, 53, 32, 0.45);
+            border-radius: 0;
+            color: #3a2008;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 15px;
+            padding: 8px 4px;
+            box-shadow: none;
+            transition: border-color 0.2s ease;
+        }
+        .input-section #locationInput::placeholder,
+        .input-section #zoomInput::placeholder {
+            color: rgba(74, 53, 32, 0.5);
+            font-style: italic;
+        }
+        .input-section #locationInput:focus,
+        .input-section #zoomInput:focus {
+            border-bottom-color: #3a2008;
+            box-shadow: none;
+            outline: none;
+        }
+
+        /* Buttons — primary look like vintage stamps */
+        .input-section button {
+            background: #3a2008;
+            color: #f0e2bf;
+            border: none;
+            border-radius: 0;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 11px 22px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        .input-section button:hover {
+            background: #1a0e02;
+            transform: none;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+        }
+
+        /* Secondary buttons — transparent with sepia text */
+        .input-section .secondary-btn {
+            background: transparent;
+            color: #3a2008;
+            border: 1px solid rgba(74, 53, 32, 0.5);
+            box-shadow: none;
+        }
+        .input-section .secondary-btn:hover {
+            background: rgba(74, 53, 32, 0.08);
+            color: #3a2008;
+        }
+
+        .input-section .optimize-btn {
+            background: #3a2008;
+            color: #f0e2bf;
+            border: none;
+        }
+        .input-section .optimize-btn:hover { background: #1a0e02; }
+
+        /* Zoom +/- and Lock buttons */
+        .input-section .zoom-btn {
+            background: #3a2008;
+            color: #f0e2bf;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .input-section .zoom-btn:hover { background: #1a0e02; }
+
+        .input-section .zoom-lock-btn {
+            background: transparent;
+            color: #3a2008;
+            border: 1px solid rgba(74, 53, 32, 0.5);
+            border-radius: 0;
+            padding: 9px 14px;
+        }
+        .input-section .zoom-lock-btn:hover {
+            background: rgba(74, 53, 32, 0.08);
+        }
+        .input-section .zoom-lock-btn.locked {
+            background: #3a2008;
+            color: #f0e2bf;
+            border-color: #3a2008;
+        }
+
+        .input-section .zoom-info small { color: rgba(74, 53, 32, 0.55); font-style: italic; }
+
+        /* Itinerary location items — no borders, thin dashed sepia separator */
+        .input-section .location-item {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            border-bottom: 1px dashed rgba(74, 53, 32, 0.25);
+            padding: 12px 4px;
+            margin: 0;
+        }
+        .input-section .location-item:last-child { border-bottom: none; }
+        .input-section .location-item:hover {
+            background: rgba(74, 53, 32, 0.05);
+            border-color: rgba(74, 53, 32, 0.4);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .input-section .location-number {
+            background: #3a2008;
+            color: #f0e2bf;
+            border-radius: 0;
+            font-family: Georgia, serif;
+        }
+
+        .input-section .location-name {
+            color: #3a2008;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        .input-section .leg-distance {
+            color: rgba(74, 53, 32, 0.65);
+            font-style: italic;
+        }
+
+        /* Remove (×) button — sepia, transparent, no border */
+        .input-section .remove-btn {
+            background: transparent;
+            color: #3a2008;
+            border: none;
+            font-family: Georgia, serif;
+            font-size: 20px;
+        }
+        .input-section .remove-btn:hover {
+            background: rgba(74, 53, 32, 0.12);
+            color: #3a2008;
+            border: none;
+            transform: none;
+        }
+
+        /* Distance display — vintage typography */
+        .input-section .distance-label {
+            color: rgba(74, 53, 32, 0.7);
+            font-family: Georgia, serif;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 11px;
+        }
+        .input-section .distance-value {
+            color: #3a2008;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-weight: 700;
+        }
+        .input-section .distance-value .unit { color: rgba(74, 53, 32, 0.7); }
+
+        .input-section .empty-message {
+            color: rgba(74, 53, 32, 0.55);
+            font-style: italic;
+            font-family: Georgia, serif;
+        }
+
         /* ===== Map controls: Fullscreen button + Settings gear ===== */
         .settings-gear,
         .fullscreen-btn {
@@ -1318,15 +1532,19 @@
         let totalDistanceKm = 0;
         let legDistances = [];  // Store distances between consecutive locations
 
-        // Sri Lanka center coordinates
-        const SRI_LANKA_CENTER = { lat: 7.8731, lng: 80.7718 };
+        // Default center sits west of Sri Lanka itself so the island
+        // appears in the right half of the viewport, exposing more
+        // parchment ocean on the left (where the image's compass + ships
+        // + sea creatures live).
+        const SRI_LANKA_CENTER = { lat: 7.8731, lng: 79.4 };
 
-        // Sri Lanka bounds to restrict map view
+        // Bounds widened westward so the camera can actually pan to
+        // show the parchment ocean on the left side of Sri Lanka.
         const SRI_LANKA_BOUNDS = {
-            north: 10.0,
-            south: 5.9,
-            west: 79.5,
-            east: 82.0
+            north: 10.5,
+            south: 5.5,
+            west: 75.5,
+            east: 82.5
         };
 
         // ===================================================================
@@ -1445,7 +1663,7 @@
                     // Transit — hidden
                     { featureType: 'transit', stylers: [{ visibility: 'off' }] }
                 ],
-                pathColors: ['#5a2810', '#d4a534']  // burgundy ink → bright gold
+                pathColors: ['#3a2008', '#FFD700']  // dark sepia → bright gold (pops against parchment)
             },
             'rich-culture': {
                 name: 'Rich Culture with Nature',
