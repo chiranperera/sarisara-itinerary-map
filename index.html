@@ -781,9 +781,25 @@
             mix-blend-mode: multiply;    /* blends with what's below */
         }
 
-        /* parchment-bg-img stays display:none (its base style) in every preset
-           so the image isn't rendered. parchment.jpg remains in the repo
-           untouched, just not used. */
+        /* v9: parchment image re-enabled with multiply blend on top of the
+           map when Antique is active. The colour-tuned map (cream land,
+           sepia water, bronze roads, tan parks) multiplied with the
+           parchment image gives the aged-paper tone everywhere; the image's
+           ships/compass/rhumb-lines/sea-creatures show through naturally. */
+        .map-section.style-antique .parchment-bg-img {
+            display: block;
+        }
+
+        /* Hide all SVG overlays when Antique is active — image provides
+           the decorations, no need for our SVG ships/compass/frame/etc. */
+        .map-section.style-antique .rhumb-lines,
+        .map-section.style-antique .antique-frame,
+        .map-section.style-antique .antique-corner,
+        .map-section.style-antique .antique-compass,
+        .map-section.style-antique .antique-ship,
+        .map-section.style-antique .parchment-overlay {
+            display: none !important;
+        }
 
         /* v8: removed the Google Maps internal-container transparency override
            that was needed for the image-behind-map approach. Without the
@@ -1388,53 +1404,48 @@
             },
             'antique': {
                 name: 'Antique / Carte du Monde',
-                type: 'google',                  // Google native styling — keeps cities, roads, parks, labels VISIBLE
-                cssClass: 'style-antique',       // toggles parchment overlay, frame, corner flourishes, compass, ships
+                type: 'google',
+                cssClass: 'style-antique',
+                // v9: Rich Culture's feature structure (everything visible —
+                // roads, water, parks, labels), recoloured in Antique sepia.
+                // Parchment image is layered on top via mix-blend-mode multiply,
+                // tinting the whole map into aged-paper territory.
                 styles: [
-                    // CRITICAL: do NOT set a global `elementType: 'geometry'` color
-                    // here — that would paint water tiles cream and hide the
-                    // parchment background image. Instead, fill ONLY landscape
-                    // (land features) with cream, leaving water genuinely transparent.
-                    { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
-                    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
-                    { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },
-
+                    { elementType: 'geometry', stylers: [{ color: '#f0e2bf' }] },          // warm cream land
                     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-                    // Labels in dark sepia ink, with a cream stroke for legibility
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] },
                     { elementType: 'labels.text.stroke', stylers: [{ color: '#f0e2bf' }, { weight: 3 }] },
 
-                    // Administrative — country labels darker, faint province borders
+                    // Administrative
                     { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a2008' }] },
                     { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#5a3a14' }, { weight: 1.2 }] },
                     { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
                     { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#7a5a3a' }, { weight: 0.5 }] },
 
-                    // Water hidden completely — no fill, no labels, no stroke.
-                    // With no global geometry color, the #map's background-image
-                    // (parchment-bg.jpg) shows through in the ocean area.
-                    { featureType: 'water', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
-                    { featureType: 'water', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+                    // Water — sepia tan ocean (replacing Rich Culture's turquoise)
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9a974' }] },
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#c9a974' }, { weight: 2 }] },
 
-                    // ALL ROADS HIDDEN — antique reference has no road network,
-                    // only terrain, illustrations, and labels. Path between stops
-                    // is a separate Polyline overlay so it still renders.
-                    { featureType: 'road', stylers: [{ visibility: 'off' }] },
-                    { featureType: 'road.highway', stylers: [{ visibility: 'off' }] },
-                    { featureType: 'road.arterial', stylers: [{ visibility: 'off' }] },
-                    { featureType: 'road.local', stylers: [{ visibility: 'off' }] },
+                    // Roads — light tan to bronze (replacing gold highways)
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#d4a974' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#b8884a' }] },
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#3a2008' }] },
+                    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#c9a974' }] },
 
-                    // POIs hidden (icons + labels) — only parks remain so we can
-                    // see forest/national-park areas as a faint tan shading
-                    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ visibility: 'on' }, { color: '#c9b27e' }] },
-                    { featureType: 'poi.park', elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
+                    // POIs in slightly darker cream so they sit on the land but don't shout
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#e8d8b0' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a14' }] },
+                    // Parks in forested-tan (replacing Rich Culture's sage green)
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#c9b27e' }] },
                     { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3a2208' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.stroke', stylers: [{ color: '#f0e2bf' }] },
 
                     // Transit — hidden
                     { featureType: 'transit', stylers: [{ visibility: 'off' }] }
                 ],
-                pathColors: ['#5a2810', '#d4a534']  // burgundy ink → bright gold (reads boldly on cream)
+                pathColors: ['#5a2810', '#d4a534']  // burgundy ink → bright gold
             },
             'rich-culture': {
                 name: 'Rich Culture with Nature',
@@ -1630,17 +1641,13 @@
             mapSection.className = mapSection.className.replace(/\bstyle-[\w-]+/g, '').trim();
             if (style.cssClass) mapSection.classList.add(style.cssClass);
 
-            // Antique-only scattered illustrations (mountain/forest markers
-            // anchored to Sri Lanka coordinates) + the explicit Sri Lanka
-            // coastline outline polygon that gives the country a visible
-            // silhouette even under the multiply-blended parchment image.
-            if (style.cssClass === 'style-antique') {
-                showAntiqueDecorations();
-                showSriLankaOutline();
-            } else {
-                hideAntiqueDecorations();
-                hideSriLankaOutline();
-            }
+            // v9: Antique no longer shows our SVG overlays — the parchment
+            // image provides all decoration (ships, compass, rhumb lines,
+            // coffee stains). Mountain/forest markers and Sri Lanka outline
+            // polygon are also hidden so the map reads as a clean colour-
+            // tuned base under the parchment overlay.
+            hideAntiqueDecorations();
+            hideSriLankaOutline();
 
             if (style.type === 'stadia') {
                 // Hide Google's base map so only Stadia tiles render
