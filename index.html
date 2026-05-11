@@ -1605,11 +1605,11 @@
         let totalDistanceKm = 0;
         let legDistances = [];  // Store distances between consecutive locations
 
-        // Default center sits west of Sri Lanka itself so the island
-        // appears in the right half of the viewport, exposing more
-        // parchment ocean on the left (where the image's compass + ships
-        // + sea creatures live).
-        const SRI_LANKA_CENTER = { lat: 7.8731, lng: 79.4 };
+        // Default center: shifted slightly west of Sri Lanka's natural
+        // longitude (80.77) so the island sits a bit left of viewport
+        // centre — leaving a small gap between Sri Lanka's east coast
+        // and the right-side panel.
+        const SRI_LANKA_CENTER = { lat: 7.8731, lng: 80.0 };
 
         // Bounds widened westward so the camera can actually pan to
         // show the parchment ocean on the left side of Sri Lanka.
