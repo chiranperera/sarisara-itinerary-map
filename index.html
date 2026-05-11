@@ -1872,25 +1872,61 @@
             'sarisara': {
                 name: 'Sarisara Branded',
                 type: 'google',
-                // Defaults until user provides actual brand palette
+                // Brand palette from Sarisara Lanka Design System v3.0
+                // Primary purple #7700FF, secondary green #30B300, orchid-mist bg
                 styles: [
-                    { elementType: 'geometry', stylers: [{ color: '#f5efe6' }] },         // warm cream
+                    // Land — Orchid Mist (--bg), the canonical app background
+                    { elementType: 'geometry', stylers: [{ color: '#F8F7FC' }] },
                     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] }, // ink brown
-                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f5efe6' }] },
-                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a2814' }] },
-                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3a20' }] },
-                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cad5d6' }] },     // soft sage water
-                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#7a8a89' }] },
-                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#e8dcc4' }] },
-                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#6a4a28' }] },
-                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#c9a961' }] }, // gold
-                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#3a2810' }] },
-                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#ede4d0' }] },
-                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#a8b89a' }] },
+
+                    // Text — deep ink (#0A0B1F) with white halo for legibility
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#0A0B1F' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#FFFFFF' }, { weight: 3 }] },
+
+                    // Administrative — country/province in primary purple, cities in ink
+                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#7700FF' }] },
+                    { featureType: 'administrative.province', elementType: 'labels.text.fill', stylers: [{ color: '#5C00CC' }] },
+                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#0A0B1F' }] },
+                    { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#5A5A6E' }] },
+                    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#E8E8EE' }, { weight: 1 }] },
+
+                    // Water — primary-light (#F0E5FF), the signature brand wash
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#F0E5FF' }] },
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#7700FF' }] },
+                    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#F8F4FF' }, { weight: 3 }] },
+
+                    // Roads — quiet neutrals so the purple highways stand out
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#FFFFFF' }] },
+                    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#E8E8EE' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#5A5A6E' }] },
+
+                    // Highways — primary purple (#7700FF) — the route DNA
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#B44DFF' }] },
+                    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#7700FF' }] },
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#5C00CC' }] },
+                    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#FFFFFF' }] },
+                    { featureType: 'road.arterial', elementType: 'geometry.stroke', stylers: [{ color: '#D8C5F5' }] },
+
+                    // POIs — muted neutrals so they don't compete with the brand
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#F0F0F5' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#5A5A6E' }] },
+                    { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+
+                    // Parks — secondary-light (#E6F9E0), the green half of the brand
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#E6F9E0' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#228A00' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.stroke', stylers: [{ color: '#FFFFFF' }, { weight: 3 }] },
+
+                    // Attractions — same green ecosystem
+                    { featureType: 'poi.attraction', elementType: 'geometry', stylers: [{ color: '#F0E5FF' }] },
+                    { featureType: 'poi.attraction', elementType: 'labels.text.fill', stylers: [{ color: '#5C00CC' }] },
+
+                    // Transit — fully suppressed; route layer carries the story
                     { featureType: 'transit', stylers: [{ visibility: 'off' }] }
                 ],
-                pathColors: ['#8B6F1A', '#E5C76B']  // antique gold → champagne (matches brand)
+                // Brand-DNA path: purple primary → green secondary
+                // (matches --grad-brand-full from the design system)
+                pathColors: ['#7700FF', '#30B300']
             }
         };
 
