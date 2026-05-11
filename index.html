@@ -2090,18 +2090,13 @@
             mapSection.className = mapSection.className.replace(/\bstyle-[\w-]+/g, '').trim();
             if (style.cssClass) mapSection.classList.add(style.cssClass);
 
-            // v10: Antique shows the India-cover polygon (hides every
-            // country except Sri Lanka) — combined with the multiply-blended
-            // parchment image, only Sri Lanka renders as a real map; the
-            // rest of the canvas is pure parchment.
-            // SVG overlays / land markers / outline still hidden.
+            // v11: India-cover polygon removed by user request. Google's full
+            // base map (including India + surrounding ocean) is visible again
+            // beneath the parchment image's multiply overlay. SVG overlays /
+            // land markers / outline / India-cover polygon — all hidden.
             hideAntiqueDecorations();
             hideSriLankaOutline();
-            if (style.cssClass === 'style-antique') {
-                showIndiaCover();
-            } else {
-                hideIndiaCover();
-            }
+            hideIndiaCover();
 
             if (style.type === 'stadia') {
                 // Hide Google's base map so only Stadia tiles render
