@@ -781,41 +781,18 @@
             mix-blend-mode: multiply;    /* blends with what's below */
         }
 
-        .map-section.style-antique .parchment-bg-img {
-            display: block;
-        }
+        /* parchment-bg-img stays display:none (its base style) in every preset
+           so the image isn't rendered. parchment.jpg remains in the repo
+           untouched, just not used. */
 
-        /* Force Google Maps' internal containers transparent when antique is
-           active. Without this, the .gm-style div paints an opaque background
-           that hides our parchment image. !important to override Google's
-           inline styles. */
-        .map-section.style-antique #map,
-        .map-section.style-antique #map > div,
-        .map-section.style-antique #map .gm-style,
-        .map-section.style-antique #map .gm-style > div:first-child {
-            background-color: transparent !important;
-            background: transparent !important;
-        }
+        /* v8: removed the Google Maps internal-container transparency override
+           that was needed for the image-behind-map approach. Without the
+           image, the map renders normally on its own opaque tiles. */
 
-        /* Re-apply the filter (background:transparent above overrode the filter property too) */
-        .map-section.style-antique #map {
-            filter: contrast(1.04) saturate(0.92) sepia(0.05);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* The parchment image already includes: rhumb lines, compass rose,
-           sailing ships, sea creatures, decorative frame, corner ornaments,
-           and a paper-grain texture with coffee stains. So we hide the SVG
-           versions of those when antique is active — no duplication. */
-        .map-section.style-antique .rhumb-lines,
-        .map-section.style-antique .antique-frame,
-        .map-section.style-antique .antique-corner,
-        .map-section.style-antique .antique-compass,
-        .map-section.style-antique .antique-ship,
-        .map-section.style-antique .parchment-overlay {
-            display: none !important;
-        }
+        /* v8: parchment image is no longer used as a layer (it fights
+           Google Maps' opaque tiles). SVG decorations below provide the
+           antique aesthetic instead. The image file stays in the repo
+           but isn't referenced by CSS or rendered into the DOM. */
 
         .map-section.style-antique .antique-decoration {
             display: block;
@@ -1619,11 +1596,10 @@
                 });
                 sriLankaOutlinePolygon = new google.maps.Polygon({
                     paths: paths,
-                    strokeColor: '#3a2208',  // dark sepia ink
+                    strokeColor: '#3a2208',  // dark sepia ink coastline
                     strokeOpacity: 1,
-                    strokeWeight: 3.5,       // thick enough to read through the multiply blend
-                    fillColor: '#faf3dd',    // very light cream — slightly brighter than the underlying land
-                    fillOpacity: 0.7,        // semi-transparent so labels/parks still show through
+                    strokeWeight: 2.5,
+                    fillOpacity: 0,          // no fill — let underlying tile colours (cream land, parks) show
                     clickable: false,
                     zIndex: 2
                 });
