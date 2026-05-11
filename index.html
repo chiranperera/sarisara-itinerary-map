@@ -39,19 +39,20 @@
         .input-section { order: 1; }
         .map-section   { order: 2; }
 
-        /* Input Section - Left 40% */
+        /* Input Section — wider Left 48% so the location card has room
+           for its hero, 2×2 image grid, and gallery without endless scrolling */
         .input-section {
-            width: 40%;
+            width: 48%;
             height: 100vh;
-            background: #ffffff;
-            padding: 30px;
+            background: #FFFFFF;
+            padding: 28px 24px;
             overflow-y: auto;
-            border-right: 1px solid #e0e0e0;
+            border-right: 1px solid #E8E8EE;
         }
 
-        /* Map Section - Right 60% */
+        /* Map Section — Right 52% */
         .map-section {
-            width: 60%;
+            width: 52%;
             height: 100vh;
             background-color: #f5f5f5;
             position: relative;
@@ -357,15 +358,15 @@
             position: absolute;
             top: 20px;
             left: 20px;                     /* top-LEFT corner */
-            width: 320px;
+            width: 460px;
             max-height: calc(100vh - 40px);
-            background: #ffffff;
-            border: 2px solid #000000;
-            border-radius: 8px;
-            padding: 20px;
+            background: #FFFFFF;
+            border: 1px solid #E8E8EE;
+            border-radius: 16px;
+            padding: 22px;
             z-index: 1000;
             overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(9, 9, 2, 0.16);
         }
 
         .fullscreen-panel.active {
@@ -1400,11 +1401,11 @@
             display: none;                            /* hidden until renderLocationCard() is called */
             font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
             color: var(--sl-text-primary);
-            background: var(--sl-surface);
+            background: transparent;                  /* lives directly on the panel surface */
             border-radius: var(--sl-radius-xl);
-            box-shadow: var(--sl-shadow-2);
+            box-shadow: none;
             overflow: hidden;
-            margin: 0 -10px;                          /* pull flush with panel edges */
+            margin: 0;                                /* flush with the panel padding */
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
         }
@@ -1892,48 +1893,319 @@
             margin: 0;
         }
 
-        /* Within the vintage-panel cascade, neutralise inherited
-           italic / Georgia overrides that would bleed into the card. */
-        .vintage-panel .location-card,
-        .vintage-panel .location-card * {
-            font-style: normal;
-        }
-        .vintage-panel .location-card h1,
-        .vintage-panel .location-card h2,
-        .vintage-panel .location-card h3,
-        .vintage-panel .location-card h4 {
-            text-transform: none;
-            letter-spacing: -.015em;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        .vintage-panel .location-card button {
-            text-transform: none;
-            letter-spacing: -.005em;
-            background: var(--sl-primary);
-            border: none;
-        }
-        .vintage-panel .location-card .location-card__back {
-            background: rgba(255,255,255,.92);
-            color: var(--sl-ink);
-        }
-        .vintage-panel .location-card .location-card__back:hover {
-            background: #fff;
-            color: var(--sl-primary);
-        }
-
-        /* When the card is active, fade out the surrounding
-           input-container content so it doesn't compete visually. */
+        /* When the card is active, hide the surrounding "Add destination /
+           Itinerary list / Action buttons" so the card has the whole panel.
+           Card itself uses transparent bg so it sits flush on the panel. */
         .input-section.detail-mode .input-container > *:not(.location-card),
         .fullscreen-panel.detail-mode > *:not(.location-card) {
             display: none !important;
         }
+
+        /* ============================================================
+           SARISARA-PANEL — modern brand styling for the surrounding
+           Add Destination + Itinerary list view (replaces .vintage-panel).
+           Same design tokens as the location card so everything reads as
+           one coherent brand system.
+           ============================================================ */
+        .sarisara-panel {
+            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+            color: #090902;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        .sarisara-panel .input-container > h2,
+        .sarisara-panel > h2 {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: -.02em;
+            color: #090902;
+            text-transform: none;
+            margin: 0 0 18px;
+            padding: 0;
+            border: none;
+        }
+
+        .sarisara-panel .itinerary-list h3 {
+            font-family: 'Space Mono', ui-monospace, monospace;
+            font-weight: 400;
+            font-size: 11px;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: #7700FF;
+            margin: 0 0 14px;
+            padding: 18px 0 0;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sarisara-panel .itinerary-list h3::before {
+            content: '';
+            width: 18px;
+            height: 1px;
+            background: #7700FF;
+        }
+
+        /* Inputs — clean modern look with primary purple focus glow */
+        .sarisara-panel input[type="text"],
+        .sarisara-panel input[type="number"] {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: #090902;
+            background: #FFFFFF;
+            border: 1px solid #E8E8EE;
+            border-radius: 10px;
+            padding: 12px 14px;
+            transition: border-color .15s ease, box-shadow .15s ease;
+            width: 100%;
+        }
+        .sarisara-panel input[type="text"]::placeholder,
+        .sarisara-panel input[type="number"]::placeholder {
+            color: #8E8EA0;
+            font-style: normal;
+        }
+        .sarisara-panel input[type="text"]:focus,
+        .sarisara-panel input[type="number"]:focus {
+            outline: none;
+            border-color: #7700FF;
+            box-shadow: 0 0 0 4px rgba(119, 0, 255, .12);
+        }
+
+        /* Buttons — primary (Add) + secondary (Clear/Reset) + accent (Optimize) */
+        .sarisara-panel button {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -.005em;
+            text-transform: none;
+            border-radius: 10px;
+            border: none;
+            padding: 11px 18px;
+            cursor: pointer;
+            transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+        }
+
+        .sarisara-panel #addLocationBtn {
+            background: #7700FF;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(119, 0, 255, .22);
+        }
+        .sarisara-panel #addLocationBtn:hover {
+            background: #5C00CC;
+            box-shadow: 0 4px 14px rgba(119, 0, 255, .32);
+        }
+
+        .sarisara-panel .secondary-btn {
+            background: #F0F0F5;
+            color: #5A5A6E;
+        }
+        .sarisara-panel .secondary-btn:hover {
+            background: #E8E8EE;
+            color: #090902;
+        }
+        .sarisara-panel .optimize-btn {
+            background: #0A0B1F;
+            color: #FFFFFF;
+        }
+        .sarisara-panel .optimize-btn:hover {
+            background: #1f2042;
+        }
+
+        /* Itinerary list rows — clean card-style with subtle hover */
+        .sarisara-panel .location-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #F8F7FC;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: background .15s ease, border-color .15s ease, transform .15s ease;
+        }
+        .sarisara-panel .location-item:hover {
+            background: #F0E5FF;
+            border-color: #7700FF;
+            transform: none;
+            box-shadow: none;
+        }
+        .sarisara-panel .location-item:last-child { margin-bottom: 0; }
+
+        .sarisara-panel .location-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+
+        .sarisara-panel .location-number {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            background: #7700FF;
+            color: #FFFFFF;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .sarisara-panel .location-name {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #090902;
+            letter-spacing: -.005em;
+            min-width: 0;
+        }
+        .sarisara-panel .leg-distance {
+            display: block;
+            margin-top: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            font-size: 12px;
+            color: #5A5A6E;
+            font-style: normal;
+        }
+
+        .sarisara-panel .remove-btn {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            padding: 0;
+            background: transparent;
+            color: #8E8EA0;
+            border: none;
+            font-size: 20px;
+            line-height: 1;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background .15s ease, color .15s ease;
+        }
+        .sarisara-panel .remove-btn:hover {
+            background: #FDEAED;
+            color: #E5243B;
+            transform: none;
+        }
+
+        /* Distance display — quiet brand-aligned label */
+        .sarisara-panel .distance-info {
+            margin: 18px 0 0;
+            padding: 14px;
+            background: linear-gradient(135deg, #F0E5FF 0%, #F8F4FF 100%);
+            border-radius: 12px;
+        }
+        .sarisara-panel .distance-label {
+            font-family: 'Space Mono', monospace;
+            font-style: normal;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            font-size: 10px;
+            color: #5C00CC;
+            margin: 0 0 4px;
+        }
+        .sarisara-panel .distance-value {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: -.02em;
+            color: #090902;
+        }
+        .sarisara-panel .distance-value .unit {
+            font-size: 13px;
+            font-weight: 500;
+            color: #5A5A6E;
+            margin-left: 4px;
+        }
+
+        .sarisara-panel .empty-message {
+            font-family: 'DM Sans', sans-serif;
+            font-style: normal;
+            color: #8E8EA0;
+            font-size: 13px;
+            line-height: 1.55;
+            padding: 14px 0;
+        }
+
+        /* Form group — Add Destination row */
+        .sarisara-panel .form-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Action buttons row */
+        .sarisara-panel .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #E8E8EE;
+        }
+        .sarisara-panel .action-buttons button { flex: 1; }
+
+        /* Itinerary list — wrapper */
+        .sarisara-panel .itinerary-list {
+            margin-top: 24px;
+            padding-top: 22px;
+            border-top: 1px solid #E8E8EE;
+        }
+
+        /* Google Places autocomplete dropdown — modern brand-styled.
+           Overrides the older vintage rules earlier in the file. */
+        .pac-container.pac-container {
+            background: #FFFFFF;
+            border: 1px solid #E8E8EE;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            box-shadow: 0 8px 24px rgba(9, 9, 2, .12);
+            padding: 4px 0;
+            margin-top: 4px;
+        }
+        .pac-item {
+            color: #090902;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            padding: 8px 14px;
+            border-top: 1px solid #F0F0F5;
+            cursor: pointer;
+        }
+        .pac-item:first-child { border-top: none; }
+        .pac-item:hover, .pac-item-selected {
+            background: #F8F4FF;
+            color: #5C00CC;
+        }
+        .pac-item-query, .pac-matched {
+            color: #7700FF;
+            font-weight: 600;
+        }
+
+        /* Fullscreen panel — modern card on top of the map */
+        .sarisara-panel.fullscreen-panel {
+            background: #FFFFFF;
+            border: 1px solid #E8E8EE;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(9, 9, 2, 0.18);
+        }
+        .sarisara-panel.fullscreen-panel h2 {
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+        .sarisara-panel.fullscreen-panel .form-group { margin-bottom: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Location Input Section (Left 40%) -->
-        <div class="input-section vintage-panel">
+        <div class="input-section sarisara-panel">
             <div class="input-container">
                 <h2>Add Destination</h2>
                 <div class="form-group">
@@ -2146,7 +2418,7 @@
             </div>
 
             <!-- Fullscreen Panel (Hidden by default, shown in fullscreen mode) -->
-            <div class="fullscreen-panel vintage-panel" id="fullscreenPanel">
+            <div class="fullscreen-panel sarisara-panel" id="fullscreenPanel">
                 <h2>Add Destination</h2>
                 <div class="form-group">
                     <input
@@ -3721,12 +3993,9 @@
 
             activeCardIndex = index;
 
-            // Pan the map to centre the selected marker so they're visually linked
-            try {
-                if (map && locations[index]) {
-                    map.panTo({ lat: locations[index].lat, lng: locations[index].lng });
-                }
-            } catch (e) { /* ignore */ }
+            // NOTE: deliberately NOT panning the map here.
+            // The user locks the map to a specific frame before recording —
+            // any auto-pan on marker click would shake that frame.
         }
 
         /** Close the location card and return to the itinerary list view. */
