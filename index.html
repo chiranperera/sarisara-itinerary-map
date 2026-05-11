@@ -1594,6 +1594,47 @@
             antiqueLandMarkers.forEach(function (m) { m.setMap(null); });
         }
 
+        // ===================================================================
+        // Sri Lanka coastline outline
+        // -------------------------------------------------------------------
+        // The parchment image multiplied on top of the map unifies the
+        // colours of land and water — Sri Lanka loses its silhouette. To
+        // restore the country's visible shape, we draw an explicit thick
+        // dark-brown outline polygon using the same SRI_LANKA_GEOJSON we
+        // already have. The stroke is dark enough that it stays visible
+        // even after the multiply blend.
+        // ===================================================================
+
+        let sriLankaOutlinePolygon = null;
+
+        function showSriLankaOutline() {
+            if (!sriLankaOutlinePolygon) {
+                const paths = [];
+                SRI_LANKA_GEOJSON.geometry.coordinates.forEach(function (polygon) {
+                    polygon.forEach(function (ring) {
+                        paths.push(ring.map(function (pt) {
+                            return { lat: pt[1], lng: pt[0] };
+                        }));
+                    });
+                });
+                sriLankaOutlinePolygon = new google.maps.Polygon({
+                    paths: paths,
+                    strokeColor: '#3a2208',  // dark sepia ink
+                    strokeOpacity: 1,
+                    strokeWeight: 3.5,       // thick enough to read through the multiply blend
+                    fillColor: '#faf3dd',    // very light cream — slightly brighter than the underlying land
+                    fillOpacity: 0.7,        // semi-transparent so labels/parks still show through
+                    clickable: false,
+                    zIndex: 2
+                });
+            }
+            sriLankaOutlinePolygon.setMap(map);
+        }
+
+        function hideSriLankaOutline() {
+            if (sriLankaOutlinePolygon) sriLankaOutlinePolygon.setMap(null);
+        }
+
         function applyMapStyle(key) {
             const style = MAP_STYLES[key];
             if (!style || !map) return;
@@ -1613,13 +1654,16 @@
             mapSection.className = mapSection.className.replace(/\bstyle-[\w-]+/g, '').trim();
             if (style.cssClass) mapSection.classList.add(style.cssClass);
 
-            // Antique-only scattered illustrations (mountain/forest/serpent/fish
-            // markers anchored to specific Sri Lanka coordinates). Show only
-            // for Antique, hide for everything else.
+            // Antique-only scattered illustrations (mountain/forest markers
+            // anchored to Sri Lanka coordinates) + the explicit Sri Lanka
+            // coastline outline polygon that gives the country a visible
+            // silhouette even under the multiply-blended parchment image.
             if (style.cssClass === 'style-antique') {
                 showAntiqueDecorations();
+                showSriLankaOutline();
             } else {
                 hideAntiqueDecorations();
+                hideSriLankaOutline();
             }
 
             if (style.type === 'stadia') {
