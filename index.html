@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sri Lanka Tour Itinerary Planner</title>
+
+    <!-- Sarisara Lanka design-system typography (DM Sans + Space Mono).
+         Used by the location preview panel; vintage panel rules below
+         still override these for their sepia look. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
+
     <style>
         * {
             margin: 0;
@@ -1348,6 +1357,577 @@
                 right: 5%;
             }
         }
+
+        /* ========================================================
+           SARISARA LANKA — LOCATION PREVIEW CARD
+           --------------------------------------------------------
+           Image-heavy detail panel shown when a marker is clicked.
+           Self-contained CSS scope: ".location-card" overrides any
+           inherited vintage styling so the panel reads as the
+           modern Sarisara brand even inside the sepia .vintage-panel
+           container.
+           Tokens lifted from Design System v3.0 (preview/_ds.css).
+           ======================================================== */
+        .location-card {
+            /* Brand tokens scoped to this island */
+            --sl-primary: #7700FF;
+            --sl-primary-light: #F0E5FF;
+            --sl-primary-ultra-light: #F8F4FF;
+            --sl-primary-dark: #5C00CC;
+            --sl-secondary: #30B300;
+            --sl-secondary-light: #E6F9E0;
+            --sl-secondary-dark: #228A00;
+            --sl-highlight: #FFB700;
+            --sl-highlight-light: #FFF5D6;
+            --sl-ink: #0A0B1F;
+            --sl-bg: #F8F7FC;
+            --sl-surface: #FFFFFF;
+            --sl-border: #E8E8EE;
+            --sl-muted: #F0F0F5;
+            --sl-text-primary: #090902;
+            --sl-text-secondary: #5A5A6E;
+            --sl-text-tertiary: #8E8EA0;
+            --sl-text-inverse: #FFFFFF;
+            --sl-radius-sm: 6px;
+            --sl-radius-md: 8px;
+            --sl-radius-lg: 12px;
+            --sl-radius-xl: 16px;
+            --sl-radius-2xl: 20px;
+            --sl-shadow-1: 0 1px 2px rgba(9,9,2,.04), 0 1px 3px rgba(9,9,2,.06);
+            --sl-shadow-2: 0 2px 4px rgba(9,9,2,.04), 0 4px 12px rgba(9,9,2,.08);
+            --sl-shadow-3: 0 4px 8px rgba(9,9,2,.06), 0 8px 24px rgba(9,9,2,.12);
+
+            display: none;                            /* hidden until renderLocationCard() is called */
+            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+            color: var(--sl-text-primary);
+            background: var(--sl-surface);
+            border-radius: var(--sl-radius-xl);
+            box-shadow: var(--sl-shadow-2);
+            overflow: hidden;
+            margin: 0 -10px;                          /* pull flush with panel edges */
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        .location-card.active { display: block; }
+
+        /* Reset vintage cascade for everything inside the card */
+        .location-card,
+        .location-card * {
+            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+        }
+        .location-card .mono {
+            font-family: 'Space Mono', ui-monospace, 'SF Mono', monospace;
+        }
+
+        /* ---------- Hero ---------- */
+        .location-card__hero {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--sl-primary) 0%, var(--sl-primary-dark) 50%, var(--sl-secondary) 100%);
+        }
+        .location-card__hero::after {
+            /* dark gradient over the bottom for legibility */
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(9,9,2,0) 0%, rgba(9,9,2,0) 50%, rgba(9,9,2,.55) 100%);
+            pointer-events: none;
+        }
+        .location-card__day-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 2;
+            font-family: 'Space Mono', ui-monospace, monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--sl-text-inverse);
+            background: rgba(9, 9, 2, .42);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 9999px;
+        }
+        .location-card__hero-initial {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, .22);
+            font-size: 110px;
+            font-weight: 800;
+            letter-spacing: -.05em;
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+        .location-card__back {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, .92);
+            color: var(--sl-ink);
+            border: none;
+            border-radius: 9999px;
+            padding: 7px 14px 7px 11px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: -.005em;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,.12);
+            text-transform: none;
+            transition: background .15s ease;
+        }
+        .location-card__back:hover {
+            background: #fff;
+            color: var(--sl-primary);
+        }
+        .location-card__back svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ---------- Header (title block) ---------- */
+        .location-card__header {
+            padding: 22px 22px 16px;
+        }
+        .location-card__eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: .22em;
+            color: var(--sl-primary);
+            text-transform: uppercase;
+            margin: 0 0 12px;
+        }
+        .location-card__eyebrow::before {
+            content: '';
+            width: 18px;
+            height: 1px;
+            background: var(--sl-primary);
+        }
+        .location-card__title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -.025em;
+            line-height: 1.08;
+            color: var(--sl-text-primary);
+            margin: 0;
+        }
+        .location-card__subtitle {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            line-height: 1.55;
+            color: var(--sl-text-secondary);
+            margin: 10px 0 0;
+            letter-spacing: .005em;
+        }
+
+        /* ---------- Stats row (Best Time / Duration / Entry) ---------- */
+        .location-card__stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            padding: 14px 22px;
+            border-top: 1px solid var(--sl-border);
+            border-bottom: 1px solid var(--sl-border);
+            background: var(--sl-bg);
+        }
+        .location-card__stat { text-align: left; }
+        .location-card__stat + .location-card__stat {
+            border-left: 1px solid var(--sl-border);
+            padding-left: 14px;
+        }
+        .location-card__stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 9.5px;
+            font-weight: 400;
+            letter-spacing: .14em;
+            color: var(--sl-text-tertiary);
+            text-transform: uppercase;
+            margin: 0 0 5px;
+        }
+        .location-card__stat-value {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--sl-text-primary);
+            letter-spacing: -.005em;
+        }
+
+        /* ---------- Section header ---------- */
+        .location-card__section {
+            padding: 22px;
+            border-bottom: 1px solid var(--sl-border);
+        }
+        .location-card__section:last-child { border-bottom: none; }
+
+        .location-card__section-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--sl-primary);
+            margin: 0 0 14px;
+        }
+        .location-card__section-eyebrow::before {
+            content: '';
+            width: 18px;
+            height: 1px;
+            background: var(--sl-primary);
+        }
+
+        /* ---------- Things to See — 2×2 image grid ---------- */
+        .location-card__see-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .location-card__see-item {
+            position: relative;
+            border-radius: var(--sl-radius-md);
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, var(--sl-primary-light) 0%, var(--sl-primary-ultra-light) 100%);
+            box-shadow: var(--sl-shadow-1);
+        }
+        .location-card__see-item-gradient {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, .85);
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -.03em;
+        }
+        .location-card__see-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(9,9,2,0) 30%, rgba(9,9,2,.72) 100%);
+            pointer-events: none;
+        }
+        .location-card__see-item-label {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            z-index: 1;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12.5px;
+            font-weight: 600;
+            line-height: 1.25;
+            color: #fff;
+            letter-spacing: -.005em;
+        }
+
+        /* ---------- Things to Do — activity rows ---------- */
+        .location-card__do-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .location-card__do-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: var(--sl-radius-md);
+            background: var(--sl-bg);
+        }
+        .location-card__do-icon {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            border-radius: var(--sl-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .location-card__do-icon--purple { background: var(--sl-primary); }
+        .location-card__do-icon--gold   { background: var(--sl-highlight); }
+        .location-card__do-icon--green  { background: var(--sl-secondary); }
+        .location-card__do-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .location-card__do-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--sl-text-primary);
+            line-height: 1.3;
+            margin: 0 0 2px;
+        }
+        .location-card__do-meta {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            color: var(--sl-text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ---------- Hidden Gem callout ---------- */
+        .location-card__gem {
+            display: flex;
+            gap: 14px;
+            padding: 16px;
+            border-radius: var(--sl-radius-lg);
+            background: linear-gradient(135deg, var(--sl-primary-light) 0%, var(--sl-primary-ultra-light) 100%);
+            border-left: 3px solid var(--sl-primary);
+        }
+        .location-card__gem-image {
+            width: 70px;
+            height: 70px;
+            min-width: 70px;
+            border-radius: var(--sl-radius-md);
+            background: linear-gradient(135deg, var(--sl-primary) 0%, var(--sl-secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.85);
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .location-card__gem-body { flex: 1; min-width: 0; }
+        .location-card__gem-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: .18em;
+            color: var(--sl-primary-dark);
+            text-transform: uppercase;
+            margin: 0 0 6px;
+        }
+        .location-card__gem-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--sl-ink);
+            line-height: 1.3;
+            margin: 0 0 4px;
+            letter-spacing: -.01em;
+        }
+        .location-card__gem-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: var(--sl-text-secondary);
+            margin: 0;
+        }
+
+        /* ---------- Cultural Context paragraph ---------- */
+        .location-card__context {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--sl-text-secondary);
+            margin: 0;
+            letter-spacing: .005em;
+        }
+
+        /* ---------- Asymmetric photo gallery ---------- */
+        .location-card__gallery {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 8px;
+            height: 200px;
+        }
+        .location-card__gallery-item {
+            position: relative;
+            border-radius: var(--sl-radius-md);
+            overflow: hidden;
+            box-shadow: var(--sl-shadow-1);
+        }
+        .location-card__gallery-item:nth-child(1) {
+            grid-row: 1 / span 2;
+            background: linear-gradient(135deg, var(--sl-primary) 0%, var(--sl-primary-dark) 100%);
+        }
+        .location-card__gallery-item:nth-child(2) {
+            background: linear-gradient(135deg, var(--sl-secondary) 0%, var(--sl-secondary-dark) 100%);
+        }
+        .location-card__gallery-item:nth-child(3) {
+            background: linear-gradient(135deg, var(--sl-highlight) 0%, var(--sl-highlight-light) 100%);
+        }
+        .location-card__gallery-initial {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, .55);
+            font-size: 40px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* ---------- Practical info — inline bullets ---------- */
+        .location-card__practical {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12.5px;
+            color: var(--sl-text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+        .location-card__practical-item {
+            display: inline-flex;
+            align-items: center;
+        }
+        .location-card__practical-item + .location-card__practical-item::before {
+            content: '·';
+            color: var(--sl-text-tertiary);
+            margin: 0 10px;
+            font-weight: 700;
+        }
+        .location-card__practical-key {
+            color: var(--sl-text-primary);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        /* ---------- Next on the journey footer ---------- */
+        .location-card__next {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, var(--sl-primary-light) 0%, var(--sl-primary-ultra-light) 100%);
+        }
+        .location-card__next-body { flex: 1; min-width: 0; }
+        .location-card__next-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 9.5px;
+            font-weight: 400;
+            letter-spacing: .18em;
+            color: var(--sl-primary);
+            text-transform: uppercase;
+            margin: 0 0 4px;
+        }
+        .location-card__next-name {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -.015em;
+            color: var(--sl-ink);
+            margin: 0;
+            line-height: 1.2;
+        }
+        .location-card__next-distance {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11.5px;
+            color: var(--sl-text-secondary);
+            margin: 3px 0 0;
+        }
+        .location-card__next-button {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 9999px;
+            background: var(--sl-primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(119, 0, 255, .35);
+            transition: transform .18s cubic-bezier(.34,1.56,.64,1), background .15s ease;
+            padding: 0;
+        }
+        .location-card__next-button:hover {
+            background: var(--sl-primary-dark);
+            transform: translateX(2px);
+        }
+        .location-card__next-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ---------- End-of-tour state (no next location) ---------- */
+        .location-card__end {
+            padding: 18px 22px;
+            background: linear-gradient(135deg, var(--sl-secondary-light) 0%, #f0fcec 100%);
+            text-align: center;
+        }
+        .location-card__end-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .22em;
+            color: var(--sl-secondary-dark);
+            text-transform: uppercase;
+            margin: 0 0 4px;
+            font-weight: 700;
+        }
+        .location-card__end-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--sl-text-secondary);
+            margin: 0;
+        }
+
+        /* Within the vintage-panel cascade, neutralise inherited
+           italic / Georgia overrides that would bleed into the card. */
+        .vintage-panel .location-card,
+        .vintage-panel .location-card * {
+            font-style: normal;
+        }
+        .vintage-panel .location-card h1,
+        .vintage-panel .location-card h2,
+        .vintage-panel .location-card h3,
+        .vintage-panel .location-card h4 {
+            text-transform: none;
+            letter-spacing: -.015em;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .vintage-panel .location-card button {
+            text-transform: none;
+            letter-spacing: -.005em;
+            background: var(--sl-primary);
+            border: none;
+        }
+        .vintage-panel .location-card .location-card__back {
+            background: rgba(255,255,255,.92);
+            color: var(--sl-ink);
+        }
+        .vintage-panel .location-card .location-card__back:hover {
+            background: #fff;
+            color: var(--sl-primary);
+        }
+
+        /* When the card is active, fade out the surrounding
+           input-container content so it doesn't compete visually. */
+        .input-section.detail-mode .input-container > *:not(.location-card),
+        .fullscreen-panel.detail-mode > *:not(.location-card) {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -1387,6 +1967,10 @@
                         <button id="resetOrderBtn" class="secondary-btn">Reset</button>
                     </div>
                 </div>
+
+                <!-- Rich location preview card — hidden until a marker is clicked.
+                     Filled in by renderLocationCard() in the main script block. -->
+                <div class="location-card" id="locationCard" role="region" aria-label="Location detail"></div>
             </div>
         </div>
 
@@ -1595,6 +2179,9 @@
                         <button id="resetOrderBtnFS" class="secondary-btn">Reset</button>
                     </div>
                 </div>
+
+                <!-- Mirrored location preview card for fullscreen mode -->
+                <div class="location-card" id="locationCardFS" role="region" aria-label="Location detail"></div>
             </div>
         </div>
     </div>
@@ -2418,6 +3005,13 @@
                 // Skip when user is typing in an input / textarea / contenteditable
                 const tag = (document.activeElement && document.activeElement.tagName) || '';
                 if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement.isContentEditable) return;
+                // ESC always closes the open location card (no modifier check —
+                // ESC is universally "dismiss the foreground thing").
+                if (e.key === 'Escape' && typeof activeCardIndex !== 'undefined' && activeCardIndex >= 0) {
+                    e.preventDefault();
+                    closeLocationCard();
+                    return;
+                }
                 // Ignore if any modifier is held (so it doesn't fight browser shortcuts)
                 if (e.ctrlKey || e.metaKey || e.altKey) return;
                 if (e.key === 'h' || e.key === 'H') {
@@ -2714,12 +3308,473 @@
             });
         }
 
+        // ====================================================================
+        // SARISARA LANKA — LOCATION CONTENT DATABASE
+        // --------------------------------------------------------------------
+        // Curated content for the five most-visited spots. Match is by
+        // case-insensitive name lookup; anything not in the table falls back
+        // to a minimal panel (title + region only).
+        // ====================================================================
+        const LOCATION_CONTENT = {
+            'sigiriya': {
+                title: 'Sigiriya',
+                region: 'Central Sri Lanka',
+                tagline: 'A 5th-century rock fortress carved into a 200m monolith, ringed by frescoes, water gardens, and one of the boldest works of ancient urban planning in South Asia.',
+                stats: { bestTime: 'Dec–Mar', duration: 'Half day', entry: '$30 USD' },
+                see: [
+                    { initial: 'L',  label: 'Lion staircase'      },
+                    { initial: 'F',  label: 'Mirror wall frescoes'},
+                    { initial: 'G',  label: 'Water gardens'        },
+                    { initial: 'P',  label: 'Pidurangala viewpoint'}
+                ],
+                doList: [
+                    { icon: '↑', tone: 'purple', title: 'Climb to the summit',  meta: '1,200 steps · 1.5 hr round trip' },
+                    { icon: '★', tone: 'gold',   title: 'See the cloud maidens', meta: 'Half-spiral up · early morning best' },
+                    { icon: '☼', tone: 'green',  title: 'Sunrise at Pidurangala',meta: 'Across the valley · 4:30 am start' }
+                ],
+                gem: {
+                    label: 'Hidden gem',
+                    initial: 'P',
+                    title: 'Pidurangala Rock',
+                    text: 'Just 2 km away, this neighbouring outcrop gives you the postcard view of Sigiriya itself — without the $30 ticket and with a fraction of the crowd.'
+                },
+                gallery: [ { initial: 'S' }, { initial: 'L' }, { initial: 'V' } ],
+                context: 'King Kashyapa built Sigiriya in 477 CE as both palace and fortress after seizing the throne from his father. It was abandoned within two decades and reclaimed by Buddhist monks, then by the jungle. UNESCO-listed since 1982.',
+                practical: [
+                    { key: 'Open',    value: '7 am – 5:30 pm' },
+                    { key: 'Wear',    value: 'Grippy shoes, sunhat' },
+                    { key: 'Bring',   value: 'Water, cash for entry' },
+                    { key: 'Avoid',   value: 'Midday heat & rain' }
+                ]
+            },
+            'galle': {
+                title: 'Galle',
+                region: 'Southern coast',
+                tagline: 'A 17th-century Dutch fortress town wrapped around a sea-battered headland. Cobblestone lanes, lighthouse views, espresso bars, and the slowest sunset in Sri Lanka.',
+                stats: { bestTime: 'Dec–Apr', duration: '1–2 days', entry: 'Free' },
+                see: [
+                    { initial: 'F', label: 'Galle Fort ramparts'   },
+                    { initial: 'L', label: 'Dutch Reformed lighthouse'},
+                    { initial: 'C', label: 'Maritime Museum'        },
+                    { initial: 'M', label: 'Flag Rock sunset point' }
+                ],
+                doList: [
+                    { icon: '↻', tone: 'purple', title: 'Walk the full rampart loop', meta: '3 km · ~1 hour at sunset' },
+                    { icon: '☕', tone: 'gold',   title: 'Coffee on Pedlar Street',    meta: 'Several boutique roasters' },
+                    { icon: '◯', tone: 'green',  title: 'Cricket on the green',       meta: 'Sundays · join locals' }
+                ],
+                gem: {
+                    label: 'Hidden gem',
+                    initial: 'J',
+                    title: 'Jungle Beach swim',
+                    text: 'A 15-minute tuk-tuk from the Fort takes you to a hidden cove framed by jungle — calm, shallow, and almost always empty of tourists.'
+                },
+                gallery: [ { initial: 'F' }, { initial: 'L' }, { initial: 'B' } ],
+                context: 'Built by the Portuguese in 1588 and fortified by the Dutch in 1649, Galle is the best-preserved European fortress in Asia. UNESCO-listed since 1988; still a working town inside the walls.',
+                practical: [
+                    { key: 'Stay',  value: 'Inside the Fort' },
+                    { key: 'Wear',  value: 'Light cottons' },
+                    { key: 'Eat',   value: 'Coconut sambol, prawn curry' },
+                    { key: 'Don’t miss', value: 'Sunset from Flag Rock' }
+                ]
+            },
+            'ella': {
+                title: 'Ella',
+                region: 'Hill country',
+                tagline: 'A small mountain village wedged into the southern hills — tea fields, waterfalls, the Nine Arches Bridge, and the slowest, most scenic train journey on the island.',
+                stats: { bestTime: 'Feb–Sep', duration: '2 days', entry: 'Free' },
+                see: [
+                    { initial: 'B', label: 'Nine Arches Bridge'    },
+                    { initial: 'L', label: "Little Adam's Peak"    },
+                    { initial: 'E', label: 'Ella Rock'             },
+                    { initial: 'R', label: 'Ravana Falls'          }
+                ],
+                doList: [
+                    { icon: '↗', tone: 'purple', title: "Hike Little Adam's Peak",  meta: '1 hr round trip · sunrise best' },
+                    { icon: '☷', tone: 'green',  title: 'Tea factory tour',         meta: 'Halpewatte or Uva Halpewatte' },
+                    { icon: '⌒', tone: 'gold',   title: 'Train to Demodara',        meta: '40 min · cross the Nine Arches' }
+                ],
+                gem: {
+                    label: 'Hidden gem',
+                    initial: 'D',
+                    title: 'Diyaluma Falls',
+                    text: 'The second-tallest waterfall in Sri Lanka, 30 minutes from Ella. The upper pools at the top are warm, swimmable, and almost always deserted.'
+                },
+                gallery: [ { initial: 'E' }, { initial: 'T' }, { initial: 'N' } ],
+                context: 'Once a tea-plantation village built by British planters in the late 1800s, Ella has become Sri Lanka’s most-visited mountain town — but a 20-minute drive in any direction returns you to working tea country.',
+                practical: [
+                    { key: 'Wear',  value: 'Layers, hiking shoes' },
+                    { key: 'Bring', value: 'Light raincoat' },
+                    { key: 'Try',   value: 'Kithul honey curd' },
+                    { key: 'Book',  value: 'Train tickets early' }
+                ]
+            },
+            'kandy': {
+                title: 'Kandy',
+                region: 'Central highlands',
+                tagline: 'The last royal capital of Sri Lanka and the spiritual centre of the country’s Buddhist heritage — a lake-ringed city wrapped around the Temple of the Tooth.',
+                stats: { bestTime: 'Year-round', duration: '1–2 days', entry: '$12 USD' },
+                see: [
+                    { initial: 'T', label: 'Temple of the Tooth'   },
+                    { initial: 'L', label: 'Kandy Lake'             },
+                    { initial: 'B', label: 'Botanical Gardens'      },
+                    { initial: 'V', label: 'Bahirawakanda Buddha'   }
+                ],
+                doList: [
+                    { icon: '◐', tone: 'purple', title: 'Evening puja at the temple', meta: '6:30 pm · drums & offerings' },
+                    { icon: '☷', tone: 'green',  title: 'Peradeniya gardens walk',    meta: '147 acres · 2 hours' },
+                    { icon: '♪', tone: 'gold',   title: 'Kandyan dance show',         meta: '5 pm · Kandyan Arts Centre' }
+                ],
+                gem: {
+                    label: 'Hidden gem',
+                    initial: 'U',
+                    title: 'Udawatta Kele forest',
+                    text: 'A 25-hectare rainforest reserve sitting on a hill above the temple. Macaques, hornbills, hidden meditation caves. Locals come here at dawn.'
+                },
+                gallery: [ { initial: 'T' }, { initial: 'L' }, { initial: 'D' } ],
+                context: 'Kandy fell to the British in 1815, ending 2,300 years of Sinhalese kingship. The Temple of the Tooth houses a relic of the Buddha — historically, whoever held the relic held the right to rule the island.',
+                practical: [
+                    { key: 'Cover',     value: 'Shoulders & knees at temple' },
+                    { key: 'Remove',    value: 'Shoes & hats inside' },
+                    { key: 'Time',      value: 'Visit puja times: 5:30 am, 9:30 am, 6:30 pm' },
+                    { key: 'Cash',      value: 'Small bills for offerings' }
+                ]
+            },
+            'mirissa': {
+                title: 'Mirissa',
+                region: 'Southern coast',
+                tagline: 'A curved bay of pale sand and palm trees, framed by Coconut Tree Hill and the blue whales that pass within a few kilometres of the shore each winter.',
+                stats: { bestTime: 'Nov–Apr', duration: '2–3 days', entry: 'Free' },
+                see: [
+                    { initial: 'H', label: 'Coconut Tree Hill'      },
+                    { initial: 'P', label: 'Parrot Rock'            },
+                    { initial: 'B', label: 'Secret Beach'           },
+                    { initial: 'S', label: 'Snake Island swim'      }
+                ],
+                doList: [
+                    { icon: '◊', tone: 'purple', title: 'Blue whale watching',        meta: '6 am boat · Nov–Apr' },
+                    { icon: '~', tone: 'green',  title: 'Surf at Weligama',           meta: '15 min · beginner-friendly' },
+                    { icon: '☼', tone: 'gold',   title: 'Sunset at Parrot Rock',      meta: 'Wade out at low tide' }
+                ],
+                gem: {
+                    label: 'Hidden gem',
+                    initial: 'H',
+                    title: 'Hiriketiya Bay',
+                    text: 'A horseshoe-shaped bay 30 minutes east of Mirissa with a slower pace, better food, and a perfect beginner surf break — discovered by locals before the crowds caught on.'
+                },
+                gallery: [ { initial: 'M' }, { initial: 'W' }, { initial: 'C' } ],
+                context: 'Mirissa was a quiet fishing village until the late 2000s, when blue-whale-watching tours and a wave of surfers turned it into Sri Lanka’s most popular southern beach town.',
+                practical: [
+                    { key: 'Book',  value: 'Whale tour the night before' },
+                    { key: 'Eat',   value: 'Catch of the day on the beach' },
+                    { key: 'Avoid', value: 'South-west monsoon (May–Sep)' },
+                    { key: 'Tip',   value: 'Sit on the right side of the boat' }
+                ]
+            }
+        };
+
+        /**
+         * Look up curated content for a location by name. Returns a content
+         * object if a match exists, or null if the name isn't in our database
+         * (caller renders a minimal panel in that case).
+         */
+        function findLocationContent(name) {
+            if (!name) return null;
+            const key = name.toLowerCase().trim()
+                .replace(/\s*[-–—]\s*/g, ' ')
+                .replace(/[^a-z\s]/g, '')
+                .replace(/\s+/g, ' ').trim();
+            // Match against the dictionary's keys: prefix match in either
+            // direction handles "Galle Fort" → "galle", "kandy city" → "kandy".
+            const keys = Object.keys(LOCATION_CONTENT);
+            for (const k of keys) {
+                if (key === k || key.includes(k) || k.includes(key)) {
+                    return LOCATION_CONTENT[k];
+                }
+            }
+            return null;
+        }
+
+        /** Return the first uppercased character of a string. */
+        function firstInitial(s) {
+            if (!s) return '?';
+            return s.trim().charAt(0).toUpperCase();
+        }
+
+        /** Escape strings going into innerHTML so user input can't break markup. */
+        function esc(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        /**
+         * Build the inner HTML of the location card. Pure string template —
+         * no DOM lookups so it can be reused for both the main and
+         * fullscreen card targets.
+         */
+        function buildLocationCardHTML(location, index) {
+            const content = findLocationContent(location.name);
+            const dayNumber = index + 1;
+            const totalDays = locations.length;
+            const nextLocation = (index + 1 < locations.length) ? locations[index + 1] : null;
+            const legDistance = (index < legDistances.length) ? legDistances[index] : null;
+
+            const titleText  = (content && content.title)  || location.name || 'Untitled stop';
+            const regionText = (content && content.region) || 'Sri Lanka';
+            const taglineText = (content && content.tagline) ||
+                'A stop on the journey. Click on other markers to see curated details, or wait for the Sarisara AI to fill this in.';
+
+            const stats = (content && content.stats) || { bestTime: '—', duration: '—', entry: '—' };
+
+            // Header block
+            let html = `
+                <div class="location-card__hero">
+                    <div class="location-card__hero-initial">${esc(firstInitial(titleText))}</div>
+                    <span class="location-card__day-badge">Day ${dayNumber} of ${totalDays}</span>
+                    <button class="location-card__back" type="button" onclick="closeLocationCard()" aria-label="Back to itinerary">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 8H4"/><path d="M8 12L4 8L8 4"/>
+                        </svg>
+                        Back
+                    </button>
+                </div>
+                <div class="location-card__header">
+                    <p class="location-card__eyebrow">${esc(regionText)}</p>
+                    <h2 class="location-card__title">${esc(titleText)}</h2>
+                    <p class="location-card__subtitle">${esc(taglineText)}</p>
+                </div>
+                <div class="location-card__stats">
+                    <div class="location-card__stat">
+                        <p class="location-card__stat-label">Best time</p>
+                        <p class="location-card__stat-value">${esc(stats.bestTime)}</p>
+                    </div>
+                    <div class="location-card__stat">
+                        <p class="location-card__stat-label">Duration</p>
+                        <p class="location-card__stat-value">${esc(stats.duration)}</p>
+                    </div>
+                    <div class="location-card__stat">
+                        <p class="location-card__stat-label">Entry</p>
+                        <p class="location-card__stat-value">${esc(stats.entry)}</p>
+                    </div>
+                </div>
+            `;
+
+            // Things to See
+            if (content && content.see && content.see.length) {
+                html += `
+                <section class="location-card__section">
+                    <p class="location-card__section-eyebrow">Things to see</p>
+                    <div class="location-card__see-grid">
+                ` + content.see.slice(0, 4).map(item => `
+                        <div class="location-card__see-item">
+                            <div class="location-card__see-item-gradient">${esc(item.initial)}</div>
+                            <span class="location-card__see-item-label">${esc(item.label)}</span>
+                        </div>
+                `).join('') + `
+                    </div>
+                </section>
+                `;
+            }
+
+            // Things to Do
+            if (content && content.doList && content.doList.length) {
+                html += `
+                <section class="location-card__section">
+                    <p class="location-card__section-eyebrow">Things to do</p>
+                    <div class="location-card__do-list">
+                ` + content.doList.map(d => `
+                        <div class="location-card__do-row">
+                            <div class="location-card__do-icon location-card__do-icon--${esc(d.tone || 'purple')}">${esc(d.icon || '◆')}</div>
+                            <div class="location-card__do-content">
+                                <p class="location-card__do-title">${esc(d.title)}</p>
+                                <p class="location-card__do-meta">${esc(d.meta || '')}</p>
+                            </div>
+                        </div>
+                `).join('') + `
+                    </div>
+                </section>
+                `;
+            }
+
+            // Hidden gem callout
+            if (content && content.gem) {
+                html += `
+                <section class="location-card__section">
+                    <div class="location-card__gem">
+                        <div class="location-card__gem-image">${esc(content.gem.initial)}</div>
+                        <div class="location-card__gem-body">
+                            <p class="location-card__gem-label">${esc(content.gem.label || 'Hidden gem')}</p>
+                            <p class="location-card__gem-title">${esc(content.gem.title)}</p>
+                            <p class="location-card__gem-text">${esc(content.gem.text)}</p>
+                        </div>
+                    </div>
+                </section>
+                `;
+            }
+
+            // Cultural context
+            if (content && content.context) {
+                html += `
+                <section class="location-card__section">
+                    <p class="location-card__section-eyebrow">Cultural context</p>
+                    <p class="location-card__context">${esc(content.context)}</p>
+                </section>
+                `;
+            }
+
+            // Photo gallery (asymmetric 3-up)
+            if (content && content.gallery && content.gallery.length) {
+                html += `
+                <section class="location-card__section">
+                    <p class="location-card__section-eyebrow">Through the lens</p>
+                    <div class="location-card__gallery">
+                ` + content.gallery.slice(0, 3).map(g => `
+                        <div class="location-card__gallery-item">
+                            <div class="location-card__gallery-initial">${esc(g.initial)}</div>
+                        </div>
+                `).join('') + `
+                    </div>
+                </section>
+                `;
+            }
+
+            // Practical info
+            if (content && content.practical && content.practical.length) {
+                html += `
+                <section class="location-card__section">
+                    <p class="location-card__section-eyebrow">Good to know</p>
+                    <p class="location-card__practical">
+                ` + content.practical.map(p => `
+                        <span class="location-card__practical-item">
+                            <span class="location-card__practical-key">${esc(p.key)}:</span>
+                            ${esc(p.value)}
+                        </span>
+                `).join('') + `
+                    </p>
+                </section>
+                `;
+            }
+
+            // Next on the journey footer (or end-of-tour state)
+            if (nextLocation) {
+                const distLabel = (legDistance && legDistance > 0)
+                    ? `${legDistance} km drive`
+                    : 'Next stop';
+                html += `
+                <div class="location-card__next">
+                    <div class="location-card__next-body">
+                        <p class="location-card__next-label">Next on the journey</p>
+                        <p class="location-card__next-name">${esc(nextLocation.name)}</p>
+                        <p class="location-card__next-distance">${esc(distLabel)}</p>
+                    </div>
+                    <button type="button"
+                            class="location-card__next-button"
+                            aria-label="Open next location"
+                            onclick="openLocationCard(${index + 1})">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 8H12"/><path d="M8 4L12 8L8 12"/>
+                        </svg>
+                    </button>
+                </div>
+                `;
+            } else if (totalDays > 1) {
+                html += `
+                <div class="location-card__end">
+                    <p class="location-card__end-label">End of journey</p>
+                    <p class="location-card__end-text">The last stop on this tour. Tap a marker on the map to revisit any earlier day.</p>
+                </div>
+                `;
+            }
+
+            return html;
+        }
+
+        /**
+         * Open the rich card for the location at the given itinerary index.
+         * Populates both the main panel and the fullscreen panel (mirrors
+         * the existing syncLocationsList pattern).
+         */
+        let activeCardIndex = -1;
+        function openLocationCard(index) {
+            if (index == null || index < 0 || index >= locations.length) return;
+            const html = buildLocationCardHTML(locations[index], index);
+
+            const mainCard = document.getElementById('locationCard');
+            const fsCard   = document.getElementById('locationCardFS');
+            if (mainCard) { mainCard.innerHTML = html; mainCard.classList.add('active'); }
+            if (fsCard)   { fsCard.innerHTML   = html; fsCard.classList.add('active');   }
+
+            // Fade out surrounding content
+            const mainPanel = document.querySelector('.input-section');
+            const fsPanel   = document.getElementById('fullscreenPanel');
+            if (mainPanel) mainPanel.classList.add('detail-mode');
+            if (fsPanel)   fsPanel.classList.add('detail-mode');
+
+            // Reset scroll so user sees the hero first
+            if (mainPanel) mainPanel.scrollTop = 0;
+            if (fsPanel)   fsPanel.scrollTop   = 0;
+
+            activeCardIndex = index;
+
+            // Pan the map to centre the selected marker so they're visually linked
+            try {
+                if (map && locations[index]) {
+                    map.panTo({ lat: locations[index].lat, lng: locations[index].lng });
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        /** Close the location card and return to the itinerary list view. */
+        function closeLocationCard() {
+            const mainCard = document.getElementById('locationCard');
+            const fsCard   = document.getElementById('locationCardFS');
+            if (mainCard) { mainCard.classList.remove('active'); mainCard.innerHTML = ''; }
+            if (fsCard)   { fsCard.classList.remove('active');   fsCard.innerHTML   = ''; }
+
+            const mainPanel = document.querySelector('.input-section');
+            const fsPanel   = document.getElementById('fullscreenPanel');
+            if (mainPanel) mainPanel.classList.remove('detail-mode');
+            if (fsPanel)   fsPanel.classList.remove('detail-mode');
+
+            activeCardIndex = -1;
+        }
+
+        /**
+         * Refresh the open card whenever the itinerary changes (e.g. a
+         * location is added/removed). If the card's index is still valid,
+         * re-render it; otherwise close it.
+         */
+        function refreshActiveCard() {
+            if (activeCardIndex < 0) return;
+            if (activeCardIndex >= locations.length) {
+                closeLocationCard();
+                return;
+            }
+            // Re-render with up-to-date legDistances, day counts, etc.
+            const html = buildLocationCardHTML(locations[activeCardIndex], activeCardIndex);
+            const mainCard = document.getElementById('locationCard');
+            const fsCard   = document.getElementById('locationCardFS');
+            if (mainCard && mainCard.classList.contains('active')) mainCard.innerHTML = html;
+            if (fsCard   && fsCard.classList.contains('active'))   fsCard.innerHTML   = html;
+        }
+
+        // Expose the two functions on window so inline onclick handlers
+        // (and external buttons) can reach them.
+        window.openLocationCard  = openLocationCard;
+        window.closeLocationCard = closeLocationCard;
+
         function addLocationToItinerary(location) {
             locations.push(location);
 
             // Save original order (deep copy)
             originalLocations = JSON.parse(JSON.stringify(locations));
 
+            const idx = locations.length - 1;
             const marker = new google.maps.Marker({
                 position: { lat: location.lat, lng: location.lng },
                 map: map,
@@ -2727,6 +3782,8 @@
                 icon: createNumberedMarkerIcon(locations.length),
                 animation: google.maps.Animation.DROP
             });
+            // Open the rich detail card when this marker is clicked
+            marker.addListener('click', function () { openLocationCard(idx); });
 
             markers.push(marker);
             updateLocationsList();
@@ -2748,10 +3805,14 @@
             locations.forEach((location, index) => {
                 const item = document.createElement('div');
                 item.className = 'location-item';
+                // Make the row itself clickable (anywhere except the × button)
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.style.cursor = 'pointer';
 
                 // Build location info HTML
                 let locationInfoHTML = `
-                    <div class="location-info">
+                    <div class="location-info" onclick="openLocationCard(${index})">
                         <div class="location-number">${index + 1}</div>
                         <div class="location-name">
                             ${location.name}
@@ -2760,7 +3821,7 @@
                                 ''}
                         </div>
                     </div>
-                    <button class="remove-btn" onclick="removeLocation(${index})" title="Remove location">×</button>
+                    <button class="remove-btn" onclick="event.stopPropagation(); removeLocation(${index})" title="Remove location">×</button>
                 `;
 
                 item.innerHTML = locationInfoHTML;
@@ -2778,7 +3839,7 @@
             markers.forEach(marker => marker.setMap(null));
             markers = [];
 
-            // Recreate markers with updated numbers
+            // Recreate markers with updated numbers + click handlers
             locations.forEach((location, i) => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
@@ -2786,11 +3847,23 @@
                     title: location.name,
                     icon: createNumberedMarkerIcon(i + 1)
                 });
+                marker.addListener('click', function () { openLocationCard(i); });
                 markers.push(marker);
             });
 
             updateLocationsList();
             drawRoute();
+
+            // If the user removed the currently-open location (or anything
+            // before it), the active index may now be wrong — refresh/close.
+            if (activeCardIndex === index) {
+                closeLocationCard();
+            } else if (activeCardIndex > index) {
+                activeCardIndex -= 1;
+                refreshActiveCard();
+            } else {
+                refreshActiveCard();
+            }
         }
 
         function clearAll() {
@@ -2862,8 +3935,13 @@
                             title: location.name,
                             icon: createNumberedMarkerIcon(index + 1)
                         });
+                        marker.addListener('click', function () { openLocationCard(index); });
                         markers.push(marker);
                     });
+
+                    // Re-render the open card so the leg-distance footer
+                    // reflects the freshly-calculated distances.
+                    refreshActiveCard();
                 }
             });
         }
