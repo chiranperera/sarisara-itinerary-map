@@ -762,9 +762,12 @@
             background-color: #d9c79a;  /* visible only in aspect-ratio letterbox if any */
         }
 
-        /* Parchment image as a real DOM element behind #map. Z-index keeps
-           it BELOW the map; map is set transparent in antique mode so the
-           image shows through wherever Google's tiles don't paint. */
+        /* Parchment image positioned ABOVE the map with mix-blend-mode.
+           Google Maps tiles are opaque (water:visibility:off doesn't produce
+           transparent pixels), so we layer the image on top and use multiply
+           blending to combine its parchment + ships + compass + rhumb lines
+           with the map content beneath. Cream land tints into parchment;
+           labels stay readable; ships and decorations come through. */
         .parchment-bg-img {
             position: absolute;
             inset: 0;
@@ -772,9 +775,10 @@
             height: 100%;
             object-fit: cover;
             object-position: center center;
-            z-index: 0;
+            z-index: 3;                  /* ABOVE the map tiles */
             display: none;
-            pointer-events: none;
+            pointer-events: none;        /* never blocks map interaction */
+            mix-blend-mode: multiply;    /* blends with what's below */
         }
 
         .map-section.style-antique .parchment-bg-img {
