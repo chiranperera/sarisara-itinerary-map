@@ -754,29 +754,50 @@
         }
 
         .map-section.style-antique #map {
-            /* Subtle warmth + softer saturation. Heavy lifting is now done by
-               the Google native sepia style array — this is just a final pass
-               to unify with the parchment image. */
+            /* Subtle warmth pass on top of the Google native sepia style array */
             filter: contrast(1.04) saturate(0.92) sepia(0.05);
-            /* Parchment background image shows wherever Google's tiles are
-               transparent (water is set to visibility:off in the styles array,
-               so the image is visible in the ocean area around Sri Lanka).
-               Filename: parchment.jpg — saved next to index.html in the repo. */
-            background-image: url('parchment.jpg');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
         }
 
         .map-section.style-antique {
-            /* Same parchment image behind everything — visible in any
-               aspect-ratio letterbox area (and a safety net if Google
-               Maps paints anything we didn't expect). */
-            background-color: #d9c79a;
-            background-image: url('parchment.jpg');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
+            background-color: #d9c79a;  /* visible only in aspect-ratio letterbox if any */
+        }
+
+        /* Parchment image as a real DOM element behind #map. Z-index keeps
+           it BELOW the map; map is set transparent in antique mode so the
+           image shows through wherever Google's tiles don't paint. */
+        .parchment-bg-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            z-index: 0;
+            display: none;
+            pointer-events: none;
+        }
+
+        .map-section.style-antique .parchment-bg-img {
+            display: block;
+        }
+
+        /* Force Google Maps' internal containers transparent when antique is
+           active. Without this, the .gm-style div paints an opaque background
+           that hides our parchment image. !important to override Google's
+           inline styles. */
+        .map-section.style-antique #map,
+        .map-section.style-antique #map > div,
+        .map-section.style-antique #map .gm-style,
+        .map-section.style-antique #map .gm-style > div:first-child {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+
+        /* Re-apply the filter (background:transparent above overrode the filter property too) */
+        .map-section.style-antique #map {
+            filter: contrast(1.04) saturate(0.92) sepia(0.05);
+            position: relative;
+            z-index: 1;
         }
 
         /* The parchment image already includes: rhumb lines, compass rose,
@@ -995,6 +1016,11 @@
 
         <!-- Map Section (Right 60%) -->
         <div class="map-section" id="mapSection">
+            <!-- Parchment background as a real <img> element behind #map.
+                 Hidden by default; CSS shows it only when style-antique active.
+                 More reliable than background-image because we control z-index. -->
+            <img class="parchment-bg-img" src="parchment.jpg" alt="" aria-hidden="true" />
+
             <div id="map"></div>
 
             <!-- Custom fullscreen button (replaces Google's fullscreenControl so
