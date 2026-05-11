@@ -25,6 +25,11 @@
             width: 100%;
         }
 
+        /* Force panel on the LEFT (order 1) and map on the RIGHT (order 2),
+           regardless of HTML order. */
+        .input-section { order: 1; }
+        .map-section   { order: 2; }
+
         /* Input Section - Left 40% */
         .input-section {
             width: 40%;
@@ -589,6 +594,24 @@
             border: none;
             box-shadow: 0 6px 24px rgba(74, 53, 32, 0.25);
             background: #f0e2bf;
+            padding: 20px;
+            width: 320px;
+        }
+
+        /* Action buttons in the fullscreen panel — three buttons in a row,
+           smaller letters, so they all fit on a single line. */
+        .vintage-panel.fullscreen-panel .action-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            margin-top: 12px;
+        }
+        .vintage-panel.fullscreen-panel .action-buttons button {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 9.5px;
+            letter-spacing: 0.6px;
+            min-width: 0;
         }
 
         /* Buttons — primary look like vintage stamps */
@@ -1494,32 +1517,10 @@
                         placeholder="Enter location in Sri Lanka"
                         autocomplete="off"
                     >
-                    <button id="addLocationBtnFS">Add Location</button>
                 </div>
 
-                <div class="zoom-control">
-                    <h3>Map Zoom Level</h3>
-                    <div class="zoom-input-group">
-                        <label for="zoomInputFS">Enter Zoom Level (0-15):</label>
-                        <div class="zoom-input-wrapper">
-                            <button class="zoom-btn" id="zoomDecrementFS">-</button>
-                            <input
-                                type="number"
-                                id="zoomInputFS"
-                                min="0"
-                                max="15"
-                                step="0.1"
-                                value="8.6"
-                                placeholder="Enter zoom"
-                            >
-                            <button class="zoom-btn" id="zoomIncrementFS">+</button>
-                        </div>
-                        <button class="zoom-lock-btn" id="zoomLockBtnFS">
-                            <span id="lockIconFS">🔓</span>
-                            <span id="lockTextFS">Lock Zoom & Pan</span>
-                        </button>
-                    </div>
-                </div>
+                <!-- Zoom controls now live in the Settings panel (gear icon)
+                     so the fullscreen panel stays minimal. -->
 
                 <!-- Distance Display for Fullscreen -->
                 <div class="distance-info" id="distanceInfoFS" style="display: none;">
@@ -2150,21 +2151,18 @@
                 }
             });
 
-            // Update input when map zoom changes (via map controls or scroll)
+            // Update input when map zoom changes (via map controls or scroll).
+            // Only the Settings-panel zoomInput exists now; the FS version was removed.
             map.addListener('zoom_changed', function() {
                 if (!isZoomLocked) {
                     const currentZoom = map.getZoom();
                     zoomInput.value = currentZoom.toFixed(2);
-                    document.getElementById('zoomInputFS').value = currentZoom.toFixed(2);
                 }
             });
 
-            // Zoom Lock functionality
+            // Zoom Lock — only the Settings-panel button exists now
             const zoomLockBtn = document.getElementById('zoomLockBtn');
-            const zoomLockBtnFS = document.getElementById('zoomLockBtnFS');
-
             zoomLockBtn.addEventListener('click', toggleZoomLock);
-            zoomLockBtnFS.addEventListener('click', toggleZoomLock);
 
             // Set up autocomplete for fullscreen panel
             const inputFS = document.getElementById('locationInputFS');
@@ -2181,8 +2179,8 @@
                 }
             });
 
-            // Fullscreen panel event listeners
-            document.getElementById('addLocationBtnFS').addEventListener('click', addLocationFS);
+            // Fullscreen panel event listeners (Add Location button removed;
+            // autocomplete + Enter key handle additions).
             document.getElementById('clearAllBtnFS').addEventListener('click', clearAll);
             document.getElementById('optimizeRouteBtnFS').addEventListener('click', optimizeRoute);
             document.getElementById('resetOrderBtnFS').addEventListener('click', resetOrder);
@@ -2190,53 +2188,6 @@
             inputFS.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     addLocationFS();
-                }
-            });
-
-            // Fullscreen zoom controls
-            const zoomInputFS = document.getElementById('zoomInputFS');
-            const zoomIncrementFS = document.getElementById('zoomIncrementFS');
-            const zoomDecrementFS = document.getElementById('zoomDecrementFS');
-
-            zoomInputFS.addEventListener('change', function() {
-                let zoom = parseFloat(this.value);
-                if (isNaN(zoom)) {
-                    zoom = 8.6;
-                } else if (zoom < 0) {
-                    zoom = 0;
-                } else if (zoom > 15) {
-                    zoom = 15;
-                }
-                this.value = zoom;
-                zoomInput.value = zoom;
-                if (!isZoomLocked) {
-                    map.setZoom(zoom);
-                }
-            });
-
-            zoomInputFS.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    this.blur();
-                }
-            });
-
-            zoomIncrementFS.addEventListener('click', function() {
-                let currentZoom = parseFloat(zoomInputFS.value) || 8.6;
-                let newZoom = Math.min(15, currentZoom + 0.5);
-                zoomInputFS.value = newZoom;
-                zoomInput.value = newZoom;
-                if (!isZoomLocked) {
-                    map.setZoom(newZoom);
-                }
-            });
-
-            zoomDecrementFS.addEventListener('click', function() {
-                let currentZoom = parseFloat(zoomInputFS.value) || 8.6;
-                let newZoom = Math.max(0, currentZoom - 0.5);
-                zoomInputFS.value = newZoom;
-                zoomInput.value = newZoom;
-                if (!isZoomLocked) {
-                    map.setZoom(newZoom);
                 }
             });
 
@@ -2335,18 +2286,12 @@
 
             const lockIcon = document.getElementById('lockIcon');
             const lockText = document.getElementById('lockText');
-            const lockIconFS = document.getElementById('lockIconFS');
-            const lockTextFS = document.getElementById('lockTextFS');
             const zoomLockBtn = document.getElementById('zoomLockBtn');
-            const zoomLockBtnFS = document.getElementById('zoomLockBtnFS');
 
             if (isZoomLocked) {
                 lockIcon.textContent = '🔒';
                 lockText.textContent = 'Unlock Zoom & Pan';
-                lockIconFS.textContent = '🔒';
-                lockTextFS.textContent = 'Unlock Zoom & Pan';
                 zoomLockBtn.classList.add('locked');
-                zoomLockBtnFS.classList.add('locked');
 
                 // Disable zoom and pan
                 map.setOptions({
@@ -2359,10 +2304,7 @@
             } else {
                 lockIcon.textContent = '🔓';
                 lockText.textContent = 'Lock Zoom & Pan';
-                lockIconFS.textContent = '🔓';
-                lockTextFS.textContent = 'Lock Zoom & Pan';
                 zoomLockBtn.classList.remove('locked');
-                zoomLockBtnFS.classList.remove('locked');
 
                 // Enable zoom and pan
                 map.setOptions({
@@ -2421,6 +2363,13 @@
 
                 syncLocationsList();
 
+                // Move the Settings panel + overlay into the fullscreen element
+                // so the gear icon still works and the panel renders correctly.
+                const _settingsPanel = document.getElementById('settingsPanel');
+                const _settingsOverlay = document.getElementById('settingsOverlay');
+                if (_settingsPanel) fullscreenElement.appendChild(_settingsPanel);
+                if (_settingsOverlay) fullscreenElement.appendChild(_settingsOverlay);
+
                 // Google's Places Autocomplete attaches its suggestions dropdown
                 // (.pac-container) directly to <body>. In fullscreen mode the
                 // body is outside the rendered viewport so the dropdown is
@@ -2464,6 +2413,21 @@
                         document.body.appendChild(pac);
                     }
                 });
+
+                // Move Settings panel + overlay back to <body> level (where they
+                // started) so they keep working in normal mode.
+                const _exitSettingsPanel = document.getElementById('settingsPanel');
+                const _exitSettingsOverlay = document.getElementById('settingsOverlay');
+                if (_exitSettingsPanel && _exitSettingsPanel.parentElement !== document.body) {
+                    document.body.appendChild(_exitSettingsPanel);
+                }
+                if (_exitSettingsOverlay && _exitSettingsOverlay.parentElement !== document.body) {
+                    document.body.appendChild(_exitSettingsOverlay);
+                }
+
+                // Settings panel was opened — close it if it's still open
+                if (_exitSettingsPanel) _exitSettingsPanel.classList.remove('open');
+                if (_exitSettingsOverlay) _exitSettingsOverlay.classList.remove('show');
             }
         }
 
