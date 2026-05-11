@@ -1630,7 +1630,7 @@
                         <span class="style-name">Antique<br>Carte du Monde</span>
                     </button>
                     <button class="style-card" data-style="rich-culture">
-                        <div class="style-thumb" style="background: linear-gradient(135deg,#f4ede0 0%,#5a7c4f 70%,#c9a961 100%);"></div>
+                        <div class="style-thumb" style="background: linear-gradient(135deg,#f0ecd6 0%,#9cc6a3 40%,#6b9658 75%,#c9a961 100%);"></div>
                         <span class="style-name">Rich Culture<br>with Nature</span>
                     </button>
                     <button class="style-card" data-style="sarisara">
@@ -1705,6 +1705,11 @@
             west: 75.5,
             east: 82.5
         };
+
+        // Sri Lanka coastline (Natural Earth 50m, ~92 points, 1.6KB minified).
+        // Used to build the "India cover" polygon — an inverse mask that
+        // hides every country EXCEPT Sri Lanka.
+        const SRI_LANKA_GEOJSON = {"type":"Feature","id":"144","properties":{"name":"Sri Lanka"},"geometry":{"type":"MultiPolygon","coordinates":[[[[79.9694,9.6302],[79.9082,9.6198],[79.8578,9.6858],[79.847,9.7153],[79.8578,9.7344],[79.8722,9.7448],[79.8902,9.7413],[79.9118,9.6788],[79.9694,9.6302]]],[[[79.8758,9.0504],[79.9046,8.9758],[79.8218,9.0261],[79.7678,9.0695],[79.7462,9.1042],[79.8614,9.066],[79.8758,9.0504]]],[[[79.9838,9.8125],[80.0774,9.8073],[80.1818,9.8108],[80.2538,9.7969],[80.3762,9.6424],[80.711,9.3664],[80.8946,9.0851],[80.909,9.0244],[80.9342,8.9723],[80.9774,8.9567],[81.017,8.9324],[81.197,8.6615],[81.2186,8.6077],[81.215,8.5487],[81.2258,8.5053],[81.2762,8.4827],[81.3338,8.4723],[81.3734,8.4307],[81.4238,8.2154],[81.4238,8.1477],[81.4346,8.1182],[81.665,7.7831],[81.6794,7.7415],[81.6758,7.7102],[81.683,7.6842],[81.7262,7.6252],[81.7982,7.4654],[81.8306,7.429],[81.8738,7.2884],[81.8774,7.021],[81.863,6.9012],[81.8198,6.7554],[81.7694,6.6148],[81.7118,6.5124],[81.6362,6.4256],[81.3806,6.2416],[81.305,6.2034],[80.9702,6.0888],[80.7254,5.9794],[80.495,5.9499],[80.2682,6.0089],[80.0954,6.153],[80.009,6.3648],[79.9478,6.5853],[79.8578,6.8301],[79.793,7.5852],[79.7606,7.797],[79.7066,8.0661],[79.7138,8.1824],[79.7498,8.2935],[79.7498,8.0487],[79.7822,8.0192],[79.8074,8.0505],[79.8326,8.3039],[79.8506,8.4116],[79.9406,8.6911],[79.9442,8.7414],[79.9262,8.8473],[79.9298,8.8994],[80.0666,9.0955],[80.099,9.2101],[80.117,9.3264],[80.1098,9.4532],[80.0846,9.5782],[80.1962,9.5382],[80.2574,9.4948],[80.3186,9.4653],[80.369,9.4809],[80.4266,9.4809],[80.387,9.5486],[80.2574,9.6111],[80.045,9.6493],[79.9802,9.6997],[79.955,9.7431],[79.9658,9.7934],[79.9838,9.8125]]]]}};
 
         // ===================================================================
         // Map style presets — switched via the gear → Settings panel
@@ -1828,26 +1833,41 @@
                 name: 'Rich Culture with Nature',
                 type: 'google',
                 styles: [
-                    { elementType: 'geometry', stylers: [{ color: '#f4ede0' }] },         // warm cream land
+                    { elementType: 'geometry', stylers: [{ color: '#f0ecd6' }] },         // warm cream with faint sage hint
                     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] },
-                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f4ede0' }] },
-                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a2810' }] },
-                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5a3520' }] },
-                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#bcd7d8' }] },     // tropical turquoise
-                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5a8089' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#3a5028' }] }, // forest green ink
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f0ecd6' }] },
+                    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#1f3a18' }] },
+                    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#3a5028' }] },
+
+                    // Sea — tropical green water (replaces the previous turquoise blue)
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#9cc6a3' }] },
+                    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#2f6a3a' }] },
+                    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#9cc6a3' }, { weight: 2 }] },
+
+                    // Natural landscape gets a sage tint — adds general "greener" feel
+                    { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f0ecd6' }] },
+                    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#dee5c4' }] },
+                    { featureType: 'landscape.natural.terrain', elementType: 'geometry', stylers: [{ color: '#d4e0b8' }] },
+
+                    // Roads stay in gold/cream tones for cultural warmth
                     { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#e6cfa3' }] },
-                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#5a3520' }] },
-                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#c9a961' }] },  // gold highways
-                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] },
-                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#ebd9b9' }] },
-                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#8b5a2b' }] },
-                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#7d9870' }] },     // sage green parks
-                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#3a5a32' }] },
-                    { featureType: 'poi.park', elementType: 'labels.text.stroke', stylers: [{ color: '#f4ede0' }] },
+                    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#4a3520' }] },
+                    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#c9a961' }] },
+                    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#2a1c08' }] },
+
+                    // POI background slightly green-tinted to feel "alive"
+                    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#e0e5c5' }] },
+                    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#5a7a3a' }] },
+
+                    // Parks — richer jungle green (was sage)
+                    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#6b9658' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#1a3a12' }] },
+                    { featureType: 'poi.park', elementType: 'labels.text.stroke', stylers: [{ color: '#f0ecd6' }] },
+
                     { featureType: 'transit', stylers: [{ visibility: 'off' }] }
                 ],
-                pathColors: ['#2e7d4a', '#c9a961']    // emerald → gold
+                pathColors: ['#1f5a2c', '#d4a534']    // deep emerald → bright gold
             },
             'sarisara': {
                 name: 'Sarisara Branded',
@@ -1999,6 +2019,58 @@
             if (sriLankaOutlinePolygon) sriLankaOutlinePolygon.setMap(null);
         }
 
+        // ===================================================================
+        // India cover — inverse polygon that hides every country except Sri
+        // Lanka. Outer ring covers the entire visible web-mercator world,
+        // and each Sri Lanka coordinate ring becomes a hole, so only the
+        // island silhouette is visible from the map tiles below.
+        //
+        // The polygon fills WHITE so that after the parchment image
+        // (z-index 3, mix-blend multiply) layers on top, the India area
+        // shows the parchment image's colours unchanged — ships, compass,
+        // sea creatures all visible there.
+        // ===================================================================
+
+        let indiaCoverPolygon = null;
+
+        function buildIndiaCoverPaths() {
+            // Outer ring covers the world generously
+            const worldRing = [
+                { lat: 85, lng: -179.9 },
+                { lat: 85, lng: 179.9 },
+                { lat: -85, lng: 179.9 },
+                { lat: -85, lng: -179.9 }
+            ];
+            // Each Sri Lanka ring becomes a hole in the cover
+            const holes = [];
+            SRI_LANKA_GEOJSON.geometry.coordinates.forEach(function (polygon) {
+                polygon.forEach(function (ring) {
+                    holes.push(ring.map(function (pt) {
+                        return { lat: pt[1], lng: pt[0] };
+                    }));
+                });
+            });
+            return [worldRing].concat(holes);
+        }
+
+        function showIndiaCover() {
+            if (!indiaCoverPolygon) {
+                indiaCoverPolygon = new google.maps.Polygon({
+                    paths: buildIndiaCoverPaths(),
+                    strokeOpacity: 0,
+                    fillColor: '#ffffff',     // multiply-blend leaves parchment image colours intact
+                    fillOpacity: 1.0,
+                    clickable: false,
+                    zIndex: 1
+                });
+            }
+            indiaCoverPolygon.setMap(map);
+        }
+
+        function hideIndiaCover() {
+            if (indiaCoverPolygon) indiaCoverPolygon.setMap(null);
+        }
+
         function applyMapStyle(key) {
             const style = MAP_STYLES[key];
             if (!style || !map) return;
@@ -2018,13 +2090,18 @@
             mapSection.className = mapSection.className.replace(/\bstyle-[\w-]+/g, '').trim();
             if (style.cssClass) mapSection.classList.add(style.cssClass);
 
-            // v9: Antique no longer shows our SVG overlays — the parchment
-            // image provides all decoration (ships, compass, rhumb lines,
-            // coffee stains). Mountain/forest markers and Sri Lanka outline
-            // polygon are also hidden so the map reads as a clean colour-
-            // tuned base under the parchment overlay.
+            // v10: Antique shows the India-cover polygon (hides every
+            // country except Sri Lanka) — combined with the multiply-blended
+            // parchment image, only Sri Lanka renders as a real map; the
+            // rest of the canvas is pure parchment.
+            // SVG overlays / land markers / outline still hidden.
             hideAntiqueDecorations();
             hideSriLankaOutline();
+            if (style.cssClass === 'style-antique') {
+                showIndiaCover();
+            } else {
+                hideIndiaCover();
+            }
 
             if (style.type === 'stadia') {
                 // Hide Google's base map so only Stadia tiles render
